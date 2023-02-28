@@ -5,15 +5,16 @@ import numpy as np
 from weaviate.util import generate_uuid5
 from weaviate import Client
 from tqdm import tqdm
+import logging
+
+logging.basicConfig(
+    level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 class Dataset:
     def __init__(self):
         self._class_definitions = []
-
-    def _obj_loader(self):
-        for data_obj in [{}]:
-            yield data_obj
 
     def see_class_definitions(self):
         return self._class_definitions
@@ -47,6 +48,61 @@ class Dataset:
                 results[class_name] = "Already present"
         return results
 
+    def _class_uploader(
+        self, client: Client, class_name: str, batch_size: int = 30
+    ) -> bool:
+        with client.batch() as batch:
+            batch.batch_size = batch_size
+            for data_obj, vector in tqdm(self._class_dataloader(class_name)):
+                uuid = generate_uuid5(data_obj)
+                batch.add_data_object(data_obj, class_name, uuid=uuid, vector=vector)
+
+        return True
+
+    def _class_pair_uploader(
+        self, client: Client, class_from: str, class_to: str, batch_size: int = 30
+    ) -> bool:
+        with client.batch() as batch:
+            batch.batch_size = batch_size
+            for (data_obj_from, vec_from), (data_obj_to, vec_to) in tqdm(
+                self._class_pair_dataloader()
+            ):
+                # Add "class_from" objects
+                id_from = generate_uuid5(data_obj_from)
+                batch.add_data_object(
+                    data_obj_from,
+                    class_from,
+                    uuid=id_from,
+                    vector=vec_from,
+                )
+                # Add "class_to" objects
+                id_to = generate_uuid5(data_obj_to)
+                batch.add_data_object(
+                    data_obj_to,
+                    class_to,
+                    uuid=id_to,
+                    vector=vec_to,
+                )
+
+                # Add references
+                class_def = [
+                    c for c in self._class_definitions if c["class"] == class_from
+                ][0]
+                xref_props = [
+                    p for p in class_def["properties"] if p["dataType"][0] == class_to
+                ]
+                if len(xref_props) > 0:
+                    xref_prop_def = xref_props[0]
+                    batch.add_reference(
+                        from_object_uuid=id_from,
+                        from_object_class_name=class_from,
+                        from_property_name=xref_prop_def["name"],
+                        to_object_uuid=id_to,
+                        to_object_class_name=class_to,
+                    )
+
+        return True
+
 
 class WikiArticles(Dataset):
     def __init__(self):
@@ -73,7 +129,7 @@ class WikiArticles(Dataset):
             }
         ]
 
-    def _obj_loader(self, class_name):
+    def _class_dataloader(self, class_name):
         if class_name == "WikiArticle":
             for dfile in [
                 f
@@ -90,16 +146,11 @@ class WikiArticles(Dataset):
                 }
                 yield data_obj, None
         else:
-            raise ValueError("Unknown class name")            
+            raise ValueError("Unknown class name")
 
-    def upload_objects(self, client: Client, batch_size=50) -> bool:
-        with client.batch() as batch:
-            batch.batch_size = batch_size
-            for class_name in self.get_class_names():
-                for data_obj, vector in self._obj_loader(class_name):
-                    uuid = generate_uuid5(data_obj)
-                    batch.add_data_object(data_obj, class_name, uuid=uuid, vector=vector)
-
+    def upload_objects(self, client: Client, batch_size: int) -> bool:
+        for class_name in self.get_class_names():
+            self._class_uploader(client, class_name, batch_size)
         return True
 
 
@@ -139,7 +190,7 @@ class WineReviews(Dataset):
             }
         ]
 
-    def _obj_loader(self, class_name):
+    def _class_dataloader(self, class_name):
         if class_name == "WineReview":
             df = pd.read_csv("./data/winemag_tiny.csv")
             for _, row in df.iterrows():
@@ -154,14 +205,9 @@ class WineReviews(Dataset):
         else:
             raise ValueError("Unknown class name")
 
-    def upload_objects(self, client: Client, batch_size=50) -> bool:
-        with client.batch() as batch:
-            batch.batch_size = batch_size
-            for class_name in self.get_class_names():
-                for data_obj, vector in self._obj_loader(class_name):
-                    uuid = generate_uuid5(data_obj)
-                    batch.add_data_object(data_obj, class_name, uuid=uuid, vector=vector)
-
+    def upload_objects(self, client: Client, batch_size: int) -> bool:
+        for class_name in self.get_class_names():
+            self._class_uploader(client, class_name, batch_size)
         return True
 
 
@@ -212,135 +258,51 @@ class JeopardyQuestions(Dataset):
             },
         ]
 
-    def _obj_loader(self):
+    def _class_pair_dataloader(self):
         from datetime import datetime, timezone
 
-        data_fname = "./data/jeopardy_10k.json"
-        question_vec_array = np.load("./data/jeopardy_10k.json.npy")
+        data_fname = "./data/jeopardy_1k.json"
+        question_vec_array = np.load("./data/jeopardy_1k.json.npy")
         category_vec_dict = self._get_cat_array()
 
         with open(data_fname, "r") as f:
             data = json.load(f)
             for i, row in enumerate(data):
-                if i >= 100:
-                    break
-                else:
-                    question_obj = {
-                        "question": row["Question"],
-                        "answer": row["Answer"],
-                        "value": row["Value"],
-                        "round": row["Round"],
-                        "air_date": datetime.strptime(row["Air Date"], "%Y-%m-%d")
-                        .replace(tzinfo=timezone.utc)
-                        .isoformat(),
-                    }
-                    question_vec = question_vec_array[i].tolist()
-                    category_obj = {"title": row["Category"]}
-                    category_vec = list(category_vec_dict[category_obj["title"]])
-                    yield (question_obj, question_vec), (category_obj, category_vec)
+                max_objs = (
+                    10**10
+                )  # Added to this function for testing as data size non trivial
+                try:
+                    if i >= max_objs:
+                        break
+                    else:
+                        question_obj = {
+                            "question": row["Question"],
+                            "answer": row["Answer"],
+                            "value": row["Value"],
+                            "round": row["Round"],
+                            "air_date": datetime.strptime(row["Air Date"], "%Y-%m-%d")
+                            .replace(tzinfo=timezone.utc)
+                            .isoformat(),
+                        }
+                        question_vec = question_vec_array[i].tolist()
+                        category_obj = {"title": row["Category"]}
+                        category_vec = list(category_vec_dict[category_obj["title"]])
+                        yield (question_obj, question_vec), (category_obj, category_vec)
+                except:
+                    logging.warning(f"Data parsing error on row {i}")
 
     def _get_cat_array(self):
-        category_vec_fname = "./data/jeopardy_10k_categories.csv"
+        category_vec_fname = "./data/jeopardy_1k_categories.csv"
         cat_df = pd.read_csv(category_vec_fname)
         cat_arr = cat_df.iloc[:, :-1].to_numpy()
         cat_names = cat_df["category"].to_list()
         cat_emb_dict = dict(zip(cat_names, cat_arr))
         return cat_emb_dict
 
-    def upload_objects(self, client: Client, batch_size=30) -> bool:
-
-        with client.batch() as batch:
-            batch.batch_size = batch_size
-            for (question_obj, question_vec), (category_obj, category_vec) in tqdm(self._obj_loader()):  # TODO - refactor this to take two arguments for class names
-                # Add Question object including embedding
-                question_id = generate_uuid5(question_obj)
-                batch.add_data_object(
-                    question_obj,
-                    "JeopardyQuestion",
-                    uuid=question_id,
-                    vector=question_vec,
-                )
-                # Add Category object including embedding
-                category_id = generate_uuid5(category_obj)
-                batch.add_data_object(
-                    category_obj,
-                    "JeopardyCategory",
-                    uuid=category_id,
-                    vector=category_vec,
-                )
-                # Add reference from question to category
-                batch.add_reference(
-                    from_object_uuid=question_id,
-                    from_object_class_name="JeopardyQuestion",
-                    from_property_name="hasCategory",
-                    to_object_uuid=category_id,
-                    to_object_class_name="JeopardyCategory",
-                )
-
-
-
-
-
-
-
-
-
-            # for class_name in self.get_class_names():
-            #     for i, (question_obj, category_obj) in tqdm(
-            #         enumerate(self._obj_loader(class_name))
-            #     ):
-            #         # Add Question object including embedding
-            #         question_emb = question_vec_array[i].tolist()
-            #         question_id = generate_uuid5(question_obj)
-            #         batch.add_data_object(
-            #             question_obj,
-            #             "JeopardyQuestion",
-            #             uuid=question_id,
-            #             vector=question_emb,
-            #         )
-            #         # Add Category object including embedding
-            #         category_emb = list(category_vec_dict[category_obj["title"]])
-            #         category_id = generate_uuid5(category_obj)
-            #         batch.add_data_object(
-            #             category_obj,
-            #             "JeopardyCategory",
-            #             uuid=category_id,
-            #             vector=category_emb,
-            #         )
-            #         # Add reference from question to category
-            #         batch.add_reference(
-            #             from_object_uuid=question_id,
-            #             from_object_class_name="JeopardyQuestion",
-            #             from_property_name="hasCategory",
-            #             to_object_uuid=category_id,
-            #             to_object_class_name="JeopardyCategory",
-            #         )
-
-            # for class_name in self.get_class_names():
-            #     for i, (data_obj, vec) in tqdm(
-            #         enumerate(self._obj_loader(class_name))
-            #     ):
-            #         uuid = generate_uuid5(data_obj)
-            #         batch.add_data_object(
-            #             data_obj,
-            #             class_name,
-            #             uuid=uuid,
-            #             vector=vec,
-            #         )
-
-            # for class_name in self.get_class_names():
-            #     class_def = [c for c in self._class_definitions if c["class"] == class_name][0]
-            #     xref_props = [p for p in class_def["properties"] if p["dataType"] in self.get_class_names()]
-            #     for xref_prop in xref_props:
-            #         xref_prop_def = [prop_def for prop_def in class_def["properties"] if prop_def["dataType"][0] == xref_prop]
-            #         for i, (data_obj, vec) in tqdm(
-            #             enumerate(self._obj_loader(class_name))
-            #         ):                    
-            #         batch.add_reference(
-            #             from_object_uuid=question_id,
-            #             from_object_class_name=class_name,
-            #             from_property_name=xref_prop_def["name"],
-            #             to_object_uuid=category_id,
-            #             to_object_class_name=xref_prop,
-            #         )
-        return True
+    def upload_objects(self, client: Client, batch_size: int) -> bool:
+        return self._class_pair_uploader(
+            client,
+            class_from="JeopardyQuestion",
+            class_to="JeopardyCategory",
+            batch_size=batch_size,
+        )
