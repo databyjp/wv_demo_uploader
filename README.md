@@ -1,20 +1,30 @@
 ## Weaviate demo data uploader
 
-Script(s) to make it easier to upload various (small) datasets to experiment with Weaviate
+This aims to make it easy to upload demo data to your instance of Weaviate for learning how to use it. 
 
-### TODO
+## Usage
 
+All datasets are based on `Dataset` superclass, and includes a number of built-in methods to make it easier to work with it. 
 
-#### Priorities
-- Add tests
-- Confirm upload 
-- Explore how to prevent OpenAI timeout if using a trial key
+Once you instantiate a dataset, to upload it to Weaviate the syntax is as follows:
 
-#### Later
-- Add options for other APIs (e.g. Cohere)
-- Add options for local Weaviate instance
-- Add query scripts
-- Add ways for users to try out larger versions of each dataset
+```python
+import wv_datasets
+dataset = wv_datasets.JeopardyQuestions()
+dataset.add_to_schema(client)
+dataset.upload_objects(client, batch_size=100)
+```
 
-#### Maybe
-- Add front end with demo queries?
+Where `client` is the instantiated `weaviate.Client` object.
+
+### Built-in methods
+
+`.see_class_definitions()`: See the schema definition to be added
+`.classes_in_schema()`: Check whether each class is already in the Weaviate schema
+`.get_class_names()`: Get class names in the dataset
+
+## Available classes
+
+- WikiArticles 
+- WineReviews
+- JeopardyQuestions

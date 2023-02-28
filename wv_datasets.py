@@ -49,7 +49,7 @@ class Dataset:
         return results
 
     def _class_uploader(
-        self, client: Client, class_name: str, batch_size: int = 30
+        self, client: Client, class_name: str, batch_size: int = 100
     ) -> bool:
         with client.batch() as batch:
             batch.batch_size = batch_size
@@ -60,7 +60,7 @@ class Dataset:
         return True
 
     def _class_pair_uploader(
-        self, client: Client, class_from: str, class_to: str, batch_size: int = 30
+        self, client: Client, class_from: str, class_to: str, batch_size: int = 100
     ) -> bool:
         with client.batch() as batch:
             batch.batch_size = batch_size
