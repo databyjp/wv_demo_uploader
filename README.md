@@ -19,9 +19,9 @@ Where `client` is the instantiated `weaviate.Client` object.
 
 ### Built-in methods
 
-`.see_class_definitions()`: See the schema definition to be added
-`.classes_in_schema()`: Check whether each class is already in the Weaviate schema
-`.get_class_names()`: Get class names in the dataset
+- `.see_class_definitions()`: See the schema definition to be added
+- `.classes_in_schema()`: Check whether each class is already in the Weaviate schema
+- `.get_class_names()`: Get class names in the dataset
 
 ## Available classes
 
