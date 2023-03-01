@@ -1,0 +1,18 @@
+# pyproject.toml
+
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "weaviate-demo-datasets"
+version = "0.0.1"
+description = "Unofficial demo datasets for Weaviate"
+readme = "README.md"
+authors = [{ name = "JP Hwang", email = "me@jphwang.com" }]
+dependencies = [
+    "pandas",
+    "numpy",
+    "tqdm"
+]
+requires-python = ">=3.8"
