@@ -132,12 +132,14 @@ class WikiArticles(Dataset):
 
     def _class_dataloader(self, class_name):
         if class_name == "WikiArticle":
+            with pkg_resources.path("wv_datasets.data", ".") as p:
+                datasets_dir = p.absolute()
             for dfile in [
                 f
-                for f in os.listdir(pkg_resources.path("wv_datasets.data", "."))
+                for f in os.listdir(datasets_dir)
                 if f.startswith("wiki") and f.endswith(".json")
             ]:
-                with open(pkg_resources.path("wv_datasets.data", dfile), "r") as f:
+                with open(os.path.join(datasets_dir, dfile), "r") as f:
                     data = json.load(f)
 
                 data_obj = {
@@ -192,9 +194,10 @@ class WineReviews(Dataset):
         ]
 
     def _class_dataloader(self, class_name):
-        template = pkg_resources.path("wv_datasets.data", "winemag_tiny.csv")
+        with pkg_resources.path("wv_datasets.data", "winemag_tiny.csv") as p:
+            winedata_path = p.absolute()
         if class_name == "WineReview":
-            df = pd.read_csv(template)
+            df = pd.read_csv(winedata_path)
             for _, row in df.iterrows():
                 data_obj = {
                     "review_body": row["description"],
@@ -268,8 +271,10 @@ class JeopardyQuestions(Dataset):
         else:
             max_objs = 10**10
 
-        data_fpath = pkg_resources.path("wv_datasets.data", "jeopardy_1k.json")
-        arr_fpath = pkg_resources.path("wv_datasets.data", "jeopardy_1k.json.npy")
+        with pkg_resources.path("wv_datasets.data", "jeopardy_1k.json") as p:
+            data_fpath = p.absolute()
+        with pkg_resources.path("wv_datasets.data", "jeopardy_1k.json.npy") as p:
+            arr_fpath = p.absolute()
         question_vec_array = np.load(arr_fpath)
         category_vec_dict = self._get_cat_array()
 
