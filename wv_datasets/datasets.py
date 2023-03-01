@@ -6,6 +6,7 @@ from weaviate.util import generate_uuid5
 from weaviate import Client
 from tqdm import tqdm
 import logging
+import importlib.resources as pkg_resources
 
 logging.basicConfig(
     level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -133,10 +134,10 @@ class WikiArticles(Dataset):
         if class_name == "WikiArticle":
             for dfile in [
                 f
-                for f in os.listdir("./data")
+                for f in os.listdir(pkg_resources.path("wv_datasets.data", "."))
                 if f.startswith("wiki") and f.endswith(".json")
             ]:
-                with open(os.path.join("./data", dfile), "r") as f:
+                with open(pkg_resources.path("wv_datasets.data", dfile), "r") as f:
                     data = json.load(f)
 
                 data_obj = {
@@ -191,8 +192,9 @@ class WineReviews(Dataset):
         ]
 
     def _class_dataloader(self, class_name):
+        template = pkg_resources.path("wv_datasets.data", "winemag_tiny.csv")
         if class_name == "WineReview":
-            df = pd.read_csv("./data/winemag_tiny.csv")
+            df = pd.read_csv(template)
             for _, row in df.iterrows():
                 data_obj = {
                     "review_body": row["description"],
@@ -258,19 +260,22 @@ class JeopardyQuestions(Dataset):
             },
         ]
 
-    def _class_pair_dataloader(self):
+    def _class_pair_dataloader(self, test_mode=False):
         from datetime import datetime, timezone
 
-        data_fname = "./data/jeopardy_1k.json"
-        question_vec_array = np.load("./data/jeopardy_1k.json.npy")
+        if test_mode:  # Added to this function for testing as data size non trivial
+            max_objs = 150
+        else:
+            max_objs = 10**10
+
+        data_fpath = pkg_resources.path("wv_datasets.data", "jeopardy_1k.json")
+        arr_fpath = pkg_resources.path("wv_datasets.data", "jeopardy_1k.json.npy")
+        question_vec_array = np.load(arr_fpath)
         category_vec_dict = self._get_cat_array()
 
-        with open(data_fname, "r") as f:
+        with open(data_fpath, "r") as f:
             data = json.load(f)
             for i, row in enumerate(data):
-                max_objs = (
-                    10**10
-                )  # Added to this function for testing as data size non trivial
                 try:
                     if i >= max_objs:
                         break
@@ -292,8 +297,8 @@ class JeopardyQuestions(Dataset):
                     logging.warning(f"Data parsing error on row {i}")
 
     def _get_cat_array(self):
-        category_vec_fname = "./data/jeopardy_1k_categories.csv"
-        cat_df = pd.read_csv(category_vec_fname)
+        category_vec_fpath = pkg_resources.path("wv_datasets.data", "jeopardy_1k_categories.csv")
+        cat_df = pd.read_csv(category_vec_fpath)
         cat_arr = cat_df.iloc[:, :-1].to_numpy()
         cat_names = cat_df["category"].to_list()
         cat_emb_dict = dict(zip(cat_names, cat_arr))

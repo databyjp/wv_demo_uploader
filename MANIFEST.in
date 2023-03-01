@@ -1,0 +1,3 @@
+include wv_datasets/data/*.json
+include wv_datasets/data/*.npy
+include wv_datasets/data/*.csv

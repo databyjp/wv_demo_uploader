@@ -16,3 +16,9 @@ dependencies = [
     "tqdm"
 ]
 requires-python = ">=3.8"
+
+[tool.setuptools.packages.find]
+include = ["wv_datasets", "wv_datasets.*"]
+
+[tool.setuptools.package-data]
+wv_datasets = ["*.json", "*.npy", "*.csv"]
