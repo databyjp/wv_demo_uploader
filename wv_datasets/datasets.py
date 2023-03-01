@@ -6,12 +6,12 @@ from weaviate.util import generate_uuid5
 from weaviate import Client
 from tqdm import tqdm
 import logging
-import importlib.resources as pkg_resources
 
 logging.basicConfig(
     level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
+basedir = os.path.dirname(os.path.abspath(__file__))
 
 class Dataset:
     def __init__(self):
@@ -132,8 +132,8 @@ class WikiArticles(Dataset):
 
     def _class_dataloader(self, class_name):
         if class_name == "WikiArticle":
-            with pkg_resources.path("wv_datasets.data", ".") as p:
-                datasets_dir = p.absolute()
+
+            datasets_dir = os.path.join(basedir, "data")
             for dfile in [
                 f
                 for f in os.listdir(datasets_dir)
@@ -194,8 +194,7 @@ class WineReviews(Dataset):
         ]
 
     def _class_dataloader(self, class_name):
-        with pkg_resources.path("wv_datasets.data", "winemag_tiny.csv") as p:
-            winedata_path = p.absolute()
+        winedata_path = os.path.join(basedir, "data", "winemag_tiny.csv")
         if class_name == "WineReview":
             df = pd.read_csv(winedata_path)
             for _, row in df.iterrows():
@@ -271,10 +270,8 @@ class JeopardyQuestions(Dataset):
         else:
             max_objs = 10**10
 
-        with pkg_resources.path("wv_datasets.data", "jeopardy_1k.json") as p:
-            data_fpath = p.absolute()
-        with pkg_resources.path("wv_datasets.data", "jeopardy_1k.json.npy") as p:
-            arr_fpath = p.absolute()
+        data_fpath = os.path.join(basedir, "data", "jeopardy_1k.json")
+        arr_fpath = os.path.join(basedir, "data", "jeopardy_1k.json.npy")
         question_vec_array = np.load(arr_fpath)
         category_vec_dict = self._get_cat_array()
 
@@ -302,7 +299,7 @@ class JeopardyQuestions(Dataset):
                     logging.warning(f"Data parsing error on row {i}")
 
     def _get_cat_array(self):
-        category_vec_fpath = pkg_resources.path("wv_datasets.data", "jeopardy_1k_categories.csv")
+        category_vec_fpath = os.path.join(basedir, "data", "jeopardy_1k_categories.csv")
         cat_df = pd.read_csv(category_vec_fpath)
         cat_arr = cat_df.iloc[:, :-1].to_numpy()
         cat_names = cat_df["category"].to_list()
