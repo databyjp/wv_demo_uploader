@@ -342,7 +342,7 @@ class JeopardyQuestions1k(Dataset):
         )
 
 
-class JeopardyQuestions10k(JeopardyQuestionsSmall):
+class JeopardyQuestions10k(JeopardyQuestions1k):
 
     data_fpath = os.path.join(basedir, "data", "jeopardy_10k.json")
     arr_fpath = os.path.join(basedir, "data", "jeopardy_10k.json.npy")

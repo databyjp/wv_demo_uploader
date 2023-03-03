@@ -2,6 +2,7 @@
 temp*.ipynb
 temp
 *10k*
+weaviate-demo-datasets*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
