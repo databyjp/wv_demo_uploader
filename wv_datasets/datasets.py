@@ -13,21 +13,24 @@ logging.basicConfig(
 
 basedir = os.path.dirname(os.path.abspath(__file__))
 
+
 class Dataset:
     def __init__(self):
         self._class_definitions = []
 
-    def see_class_definitions(self):
+    def get_class_definitions(self) -> list:
         return self._class_definitions
 
-    def get_class_names(self):
+    def get_class_names(self) -> list:
         return [c["class"] for c in self._class_definitions]
 
-    def _class_in_schema(self, client: Client, class_name):
+    # ----- METHODS FOR SCHEMA DETAILS -----
+
+    def _class_in_schema(self, client: Client, class_name) -> bool:
         schema = client.schema.get()
         return class_name in [wv_class["class"] for wv_class in schema["classes"]]
 
-    def classes_in_schema(self, client: Client):
+    def classes_in_schema(self, client: Client) -> dict:
         """
         Polls the Weaviate instance to check if this class exists.
         """
@@ -36,6 +39,13 @@ class Dataset:
             class_name: self._class_in_schema(client, class_name)
             for class_name in class_names
         }
+    
+    def delete_existing_dataset_classes(self, client: Client) -> bool:
+        class_names = self.get_class_names()
+        for class_name in class_names:
+            if self._class_in_schema(client, class_name):
+                client.schema.delete_class(class_name)
+        return True
 
     def add_to_schema(self, client: Client) -> bool:
         results = dict()
@@ -48,6 +58,15 @@ class Dataset:
             else:
                 results[class_name] = "Already present"
         return results
+
+    def set_vectorizer(self, vectorizer_name: str, module_config: dict) -> list:
+        # TODO - add vectorizer / module config validation here
+        for i, class_def in enumerate(self._class_definitions):
+            class_def["vectorizer"] = vectorizer_name
+            class_def["moduleConfig"] = module_config
+        return self.get_class_definitions()
+
+    # ----- DATA UPLOADER GENERIC METHODS -----
 
     def _class_uploader(
         self, client: Client, class_name: str, batch_size: int = 100
@@ -132,7 +151,6 @@ class WikiArticles(Dataset):
 
     def _class_dataloader(self, class_name):
         if class_name == "WikiArticle":
-
             datasets_dir = os.path.join(basedir, "data")
             for dfile in [
                 f
@@ -298,7 +316,7 @@ class JeopardyQuestions(Dataset):
                 except:
                     logging.warning(f"Data parsing error on row {i}")
 
-    def _get_cat_array(self):
+    def _get_cat_array(self) -> dict:
         category_vec_fpath = os.path.join(basedir, "data", "jeopardy_1k_categories.csv")
         cat_df = pd.read_csv(category_vec_fpath)
         cat_arr = cat_df.iloc[:, :-1].to_numpy()
