@@ -10,7 +10,7 @@ Once you instantiate a dataset, to upload it to Weaviate the syntax is as follow
 
 ```python
 import wv_datasets
-dataset = wv_datasets.JeopardyQuestions()  # Instantiate dataset
+dataset = wv_datasets.JeopardyQuestionsSmall()  # Instantiate dataset
 dataset.add_to_schema(client)  # Add class to schema
 dataset.upload_objects(client)  # Upload objects (uses batch uploads by default)
 ```
@@ -49,4 +49,9 @@ client = weaviate.Client(
 
 - WikiArticles 
 - WineReviews
-- JeopardyQuestions
+- JeopardyQuestions1k
+- JeopardyQuestions10k
+
+## Source code:
+
+https://github.com/databyjp/wv_demo_uploader

@@ -15,6 +15,13 @@ basedir = os.path.dirname(os.path.abspath(__file__))
 
 
 class Dataset:
+
+    """
+    TODO: 
+    Add .dataset_size method to get dataset size
+    Add tests!
+    """
+
     def __init__(self):
         self._class_definitions = []
 
@@ -233,7 +240,12 @@ class WineReviews(Dataset):
         return True
 
 
-class JeopardyQuestions(Dataset):
+class JeopardyQuestions1k(Dataset):
+
+    data_fpath = os.path.join(basedir, "data", "jeopardy_1k.json")
+    arr_fpath = os.path.join(basedir, "data", "jeopardy_1k.json.npy")
+    category_vec_fpath = os.path.join(basedir, "data", "jeopardy_1k_categories.csv")
+
     def __init__(self):
         self._class_definitions = [
             {
@@ -288,8 +300,6 @@ class JeopardyQuestions(Dataset):
         else:
             max_objs = 10**10
 
-        data_fpath = os.path.join(basedir, "data", "jeopardy_1k.json")
-        arr_fpath = os.path.join(basedir, "data", "jeopardy_1k.json.npy")
         question_vec_array = np.load(arr_fpath)
         category_vec_dict = self._get_cat_array()
 
@@ -317,7 +327,6 @@ class JeopardyQuestions(Dataset):
                     logging.warning(f"Data parsing error on row {i}")
 
     def _get_cat_array(self) -> dict:
-        category_vec_fpath = os.path.join(basedir, "data", "jeopardy_1k_categories.csv")
         cat_df = pd.read_csv(category_vec_fpath)
         cat_arr = cat_df.iloc[:, :-1].to_numpy()
         cat_names = cat_df["category"].to_list()
@@ -331,3 +340,10 @@ class JeopardyQuestions(Dataset):
             class_to="JeopardyCategory",
             batch_size=batch_size,
         )
+
+
+class JeopardyQuestions10k(JeopardyQuestionsSmall):
+
+    data_fpath = os.path.join(basedir, "data", "jeopardy_10k.json")
+    arr_fpath = os.path.join(basedir, "data", "jeopardy_10k.json.npy")
+    category_vec_fpath = os.path.join(basedir, "data", "jeopardy_10k_categories.csv")
