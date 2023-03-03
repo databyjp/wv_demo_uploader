@@ -11,8 +11,7 @@ Once you instantiate a dataset, to upload it to Weaviate the syntax is as follow
 ```python
 import wv_datasets
 dataset = wv_datasets.JeopardyQuestionsSmall()  # Instantiate dataset
-dataset.add_to_schema(client)  # Add class to schema
-dataset.upload_objects(client)  # Upload objects (uses batch uploads by default)
+dataset.upload_dataset(client)  # Add class to schema & Upload objects (uses batch uploads by default)
 ```
 
 Where `client` is the instantiated `weaviate.Client` object.
@@ -39,11 +38,16 @@ client = weaviate.Client(
 
 ### Built-in methods
 
+- `.add_to_schema(client)` - add defined classes to schema; returns status & any classes already present
+- `.upload_objects(client, batch_size)` - adds objects; must specify batch size
+- `.upload_dataset(client)` - runs `.add_to_schema` and `.upload_objects`; default batch size 100
+
 - `.get_class_definitions()`: See the schema definition to be added
 - `.get_class_names()`: See class names in the dataset
 - `.classes_in_schema(client)`: Check whether each class is already in the Weaviate schema
 - `.delete_existing_dataset_classes(client)`: If dataset classes are already in the Weaviate instance, delete them from the Weaviate instance.
 - `.set_vectorizer(vectorizer_name, module_config)`: Set the vectorizer and corresponding module configuration for the dataset. Datasets come pre-configured with a vectorizer & module configuration. 
+
 
 ## Available classes
 
