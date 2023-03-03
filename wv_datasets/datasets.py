@@ -63,7 +63,7 @@ class Dataset:
                 status = f"{class_name}: {self._class_in_schema(client, class_name)}"
                 results[class_name] = status
             else:
-                results[class_name] = "Already present"
+                results[class_name] = "Already present; not added."
         return results
 
     def set_vectorizer(self, vectorizer_name: str, module_config: dict) -> list:
@@ -128,6 +128,15 @@ class Dataset:
                         to_object_class_name=class_to,
                     )
 
+        return True
+
+    def upload_dataset(self, client: Client, batch_size=100) -> bool:
+        """
+        Adds the class to the schema, then
+        Upload the objects.
+        """
+        schema_add_results = self.add_to_schema(client)
+        self.upload_objects(client, batch_size=batch_size)
         return True
 
 
@@ -300,10 +309,10 @@ class JeopardyQuestions1k(Dataset):
         else:
             max_objs = 10**10
 
-        question_vec_array = np.load(arr_fpath)
+        question_vec_array = np.load(self.arr_fpath)
         category_vec_dict = self._get_cat_array()
 
-        with open(data_fpath, "r") as f:
+        with open(self.data_fpath, "r") as f:
             data = json.load(f)
             for i, row in enumerate(data):
                 try:
@@ -327,7 +336,7 @@ class JeopardyQuestions1k(Dataset):
                     logging.warning(f"Data parsing error on row {i}")
 
     def _get_cat_array(self) -> dict:
-        cat_df = pd.read_csv(category_vec_fpath)
+        cat_df = pd.read_csv(self.category_vec_fpath)
         cat_arr = cat_df.iloc[:, :-1].to_numpy()
         cat_names = cat_df["category"].to_list()
         cat_emb_dict = dict(zip(cat_names, cat_arr))
