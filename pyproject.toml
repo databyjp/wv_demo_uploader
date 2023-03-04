@@ -18,7 +18,7 @@ dependencies = [
 requires-python = ">=3.8"
 
 [tool.setuptools.packages.find]
-include = ["wv_datasets", "wv_datasets.*"]
+include = ["weaviate_datasets", "weaviate_datasets.*"]
 
 [tool.setuptools.package-data]
-wv_datasets = ["*.json", "*.npy", "*.csv"]
+weaviate_datasets = ["*.json", "*.npy", "*.csv"]
