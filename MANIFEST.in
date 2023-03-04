@@ -1,3 +1,3 @@
-include wv_datasets/data/*.json
-include wv_datasets/data/*.npy
-include wv_datasets/data/*.csv
+include weaviate_datasets/data/*.json
+include weaviate_datasets/data/*.npy
+include weaviate_datasets/data/*.csv

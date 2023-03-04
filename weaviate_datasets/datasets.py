@@ -142,6 +142,7 @@ class Dataset:
 
 class WikiArticles(Dataset):
     def __init__(self):
+        super().__init__()
         self._class_definitions = [
             {
                 "class": "WikiArticle",
@@ -193,6 +194,7 @@ class WikiArticles(Dataset):
 
 class WineReviews(Dataset):
     def __init__(self):
+        super().__init__()
         self._class_definitions = [
             {
                 "class": "WineReview",
@@ -256,6 +258,7 @@ class JeopardyQuestions1k(Dataset):
     category_vec_fpath = os.path.join(basedir, "data", "jeopardy_1k_categories.csv")
 
     def __init__(self):
+        super().__init__()
         self._class_definitions = [
             {
                 "class": "JeopardyCategory",
@@ -283,7 +286,7 @@ class JeopardyQuestions1k(Dataset):
                         "description": "Answer provided by the contestant",
                     },
                     {
-                        "name": "value",
+                        "name": "points",
                         "dataType": ["int"],
                         "description": "Points that the question was worth",
                     },
@@ -322,7 +325,7 @@ class JeopardyQuestions1k(Dataset):
                         question_obj = {
                             "question": row["Question"],
                             "answer": row["Answer"],
-                            "value": row["Value"],
+                            "points": row["Value"],
                             "round": row["Round"],
                             "air_date": datetime.strptime(row["Air Date"], "%Y-%m-%d")
                             .replace(tzinfo=timezone.utc)

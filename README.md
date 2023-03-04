@@ -9,8 +9,8 @@ All datasets are based on `Dataset` superclass, and includes a number of built-i
 Once you instantiate a dataset, to upload it to Weaviate the syntax is as follows:
 
 ```python
-import wv_datasets
-dataset = wv_datasets.JeopardyQuestionsSmall()  # Instantiate dataset
+import weaviate_datasets
+dataset = weaviate_datasets.JeopardyQuestionsSmall()  # Instantiate dataset
 dataset.upload_dataset(client)  # Add class to schema & Upload objects (uses batch uploads by default)
 ```
 
