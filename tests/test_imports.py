@@ -1,6 +1,6 @@
 import pytest
-from wv_datasets.datasets import Dataset
-from wv_datasets import JeopardyQuestions10k, JeopardyQuestions1k, WineReviews, WikiArticles
+from weaviate_datasets.datasets import Dataset
+from weaviate_datasets import JeopardyQuestions10k, JeopardyQuestions1k, WineReviews, WikiArticles
 
 dataset_classes = [JeopardyQuestions10k, JeopardyQuestions1k, WineReviews, WikiArticles]
 
