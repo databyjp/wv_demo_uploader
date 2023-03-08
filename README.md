@@ -1,17 +1,17 @@
 ## UNOFFICIAL Weaviate demo data uploader
 
-This is an educational project that aims to make it easy to upload demo data to your instance of Weaviate. The intended use case for users learning how to use Weaviate. 
+This is an educational project that aims to make it easy to upload demo data to your instance of [Weaviate](https://weaviate.io). The target audience is developers learning how to use Weaviate. 
 
 ## Usage
 
-All datasets are based on `Dataset` superclass, and includes a number of built-in methods to make it easier to work with it. 
+All datasets are based on the `Dataset` superclass, which includes a number of built-in methods to make it easier to work with it. 
 
 Once you instantiate a dataset, to upload it to Weaviate the syntax is as follows:
 
 ```python
 import weaviate_datasets
 dataset = weaviate_datasets.JeopardyQuestionsSmall()  # Instantiate dataset
-dataset.upload_dataset(client)  # Add class to schema & Upload objects (uses batch uploads by default)
+dataset.upload_dataset(client)  # Add class to schema & upload objects (uses batch uploads by default)
 ```
 
 Where `client` is the instantiated `weaviate.Client` object.
