@@ -1,18 +1,29 @@
 import pytest
 from weaviate_datasets.datasets import Dataset
-from weaviate_datasets import JeopardyQuestions10k, JeopardyQuestions1k, WineReviews, WikiArticles
+from weaviate_datasets import (
+    JeopardyQuestions10k,
+    JeopardyQuestions1k,
+    WineReviews,
+    WikiArticles,
+)
 
 dataset_classes = [JeopardyQuestions10k, JeopardyQuestions1k, WineReviews, WikiArticles]
+
 
 def test_instantiation():
     for d in dataset_classes:
         dataset = d()
         assert isinstance(dataset, Dataset)
 
+
 def test_class_defs_exist():
     for d in dataset_classes:
         dataset = d()
-        assert type(dataset.get_class_definitions()) == list and len(dataset.get_class_definitions()) > 0
+        assert (
+            type(dataset.get_class_definitions()) == list
+            and len(dataset.get_class_definitions()) > 0
+        )
+
 
 def test_vectorizer_change():
     for d in dataset_classes:
@@ -24,17 +35,37 @@ def test_vectorizer_change():
                 assert c["vectorizer"] == v
                 assert c["moduleConfig"] == new_module_config
 
+
 def test_has_a_dataloader():
     for d in dataset_classes:
+        dataset = d()
         assert (
-            (hasattr(d, "_class_dataloader") and callable(getattr(d, "_class_dataloader"))) or 
-            (hasattr(d, "_class_pair_dataloader") and callable(getattr(d, "_class_pair_dataloader")))
+            hasattr(dataset, "_class_dataloader")
+            and callable(getattr(dataset, "_class_dataloader"))
+        ) or (
+            hasattr(dataset, "_class_pair_dataloader")
+            and callable(getattr(dataset, "_class_pair_dataloader"))
         )
+
+
+def test_dataset_size():
+    for d in dataset_classes:
+        dataset = d()
+        assert type(dataset.get_dataset_size()) == int
+
+
+def test_get_sample():
+    for d in dataset_classes:
+        dataset = d()
+        sample = dataset.get_sample()
+        assert type(sample) == dict
+        assert len(sample) > 0
+
 
 # def test_class_dataloader():
 #     for d in dataset_classes:
 #         hasattr(d, "_class_dataloader") and callable(getattr(d, "_class_dataloader")):
-            
+
 # def test_class_pair_dataloader():
 #     for d in dataset_classes:
 #         if hasattr(d, "_class_pair_dataloader") and callable(getattr(d, "_class_pair_dataloader")):

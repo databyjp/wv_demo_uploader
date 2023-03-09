@@ -17,19 +17,28 @@ basedir = os.path.dirname(os.path.abspath(__file__))
 class Dataset:
 
     """
-    TODO: 
+    TODO:
     Add .dataset_size method to get dataset size
-    Add tests!
     """
 
     def __init__(self):
         self._class_definitions = []
+        self._dataset_size = None
 
     def get_class_definitions(self) -> list:
         return self._class_definitions
 
     def get_class_names(self) -> list:
         return [c["class"] for c in self._class_definitions]
+
+    def get_dataset_size(self) -> int:
+        try:
+            return self._dataset_size
+        except:
+            return None
+
+    def get_sample(self) -> None:
+        return {}
 
     # ----- METHODS FOR SCHEMA DETAILS -----
 
@@ -46,7 +55,7 @@ class Dataset:
             class_name: self._class_in_schema(client, class_name)
             for class_name in class_names
         }
-    
+
     def delete_existing_dataset_classes(self, client: Client) -> bool:
         class_names = self.get_class_names()
         for class_name in class_names:
@@ -75,9 +84,7 @@ class Dataset:
 
     # ----- DATA UPLOADER GENERIC METHODS -----
 
-    def _class_uploader(
-        self, client: Client, class_name: str, batch_size: int = 100
-    ) -> bool:
+    def _class_uploader(self, client: Client, class_name: str, batch_size: int) -> bool:
         with client.batch() as batch:
             batch.batch_size = batch_size
             for data_obj, vector in tqdm(self._class_dataloader(class_name)):
@@ -87,7 +94,7 @@ class Dataset:
         return True
 
     def _class_pair_uploader(
-        self, client: Client, class_from: str, class_to: str, batch_size: int = 100
+        self, client: Client, class_from: str, class_to: str, batch_size: int
     ) -> bool:
         with client.batch() as batch:
             batch.batch_size = batch_size
@@ -130,7 +137,7 @@ class Dataset:
 
         return True
 
-    def upload_dataset(self, client: Client, batch_size=100) -> bool:
+    def upload_dataset(self, client: Client, batch_size=200) -> bool:
         """
         Adds the class to the schema, then
         Upload the objects.
@@ -143,6 +150,7 @@ class Dataset:
 class WikiArticles(Dataset):
     def __init__(self):
         super().__init__()
+        self._dataset_size = len(self._get_filelist())
         self._class_definitions = [
             {
                 "class": "WikiArticle",
@@ -166,14 +174,18 @@ class WikiArticles(Dataset):
             }
         ]
 
+    def _get_filelist(self):
+        datasets_dir = os.path.join(basedir, "data")
+        return [
+            f
+            for f in os.listdir(datasets_dir)
+            if f.startswith("wiki") and f.endswith(".json")
+        ]
+
     def _class_dataloader(self, class_name):
         if class_name == "WikiArticle":
             datasets_dir = os.path.join(basedir, "data")
-            for dfile in [
-                f
-                for f in os.listdir(datasets_dir)
-                if f.startswith("wiki") and f.endswith(".json")
-            ]:
+            for dfile in self._get_filelist():
                 with open(os.path.join(datasets_dir, dfile), "r") as f:
                     data = json.load(f)
 
@@ -191,10 +203,20 @@ class WikiArticles(Dataset):
             self._class_uploader(client, class_name, batch_size)
         return True
 
+    def get_sample(self) -> dict:
+        samples = dict()
+        for c in self.get_class_names():
+            dl = self._class_dataloader(c)
+            samples[c] = next(dl)
+        return samples
+
 
 class WineReviews(Dataset):
+    winedata_path = os.path.join(basedir, "data", "winemag_tiny.csv")
+
     def __init__(self):
         super().__init__()
+        self._dataset_size = len(pd.read_csv(self.winedata_path))
         self._class_definitions = [
             {
                 "class": "WineReview",
@@ -230,9 +252,8 @@ class WineReviews(Dataset):
         ]
 
     def _class_dataloader(self, class_name):
-        winedata_path = os.path.join(basedir, "data", "winemag_tiny.csv")
         if class_name == "WineReview":
-            df = pd.read_csv(winedata_path)
+            df = pd.read_csv(self.winedata_path)
             for _, row in df.iterrows():
                 data_obj = {
                     "review_body": row["description"],
@@ -250,15 +271,22 @@ class WineReviews(Dataset):
             self._class_uploader(client, class_name, batch_size)
         return True
 
+    def get_sample(self) -> dict:
+        samples = dict()
+        for c in self.get_class_names():
+            dl = self._class_dataloader(c)
+            samples[c] = next(dl)
+        return samples
+
 
 class JeopardyQuestions1k(Dataset):
-
     data_fpath = os.path.join(basedir, "data", "jeopardy_1k.json")
     arr_fpath = os.path.join(basedir, "data", "jeopardy_1k.json.npy")
     category_vec_fpath = os.path.join(basedir, "data", "jeopardy_1k_categories.csv")
 
     def __init__(self):
         super().__init__()
+        self._dataset_size = 1000
         self._class_definitions = [
             {
                 "class": "JeopardyCategory",
@@ -353,9 +381,20 @@ class JeopardyQuestions1k(Dataset):
             batch_size=batch_size,
         )
 
+    def get_sample(self) -> dict:
+        samples = dict()
+        dl = self._class_pair_dataloader()
+        (question_obj, question_vec), (category_obj, category_vec) = next(dl)
+        samples["JeopardyCategory"] = question_obj
+        samples["JeopardyQuestion"] = category_obj
+        return samples
+
 
 class JeopardyQuestions10k(JeopardyQuestions1k):
-
     data_fpath = os.path.join(basedir, "data", "jeopardy_10k.json")
     arr_fpath = os.path.join(basedir, "data", "jeopardy_10k.json.npy")
     category_vec_fpath = os.path.join(basedir, "data", "jeopardy_10k_categories.csv")
+
+    def __init__(self):
+        super().__init__()
+        self._dataset_size = 10000
