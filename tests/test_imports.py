@@ -5,9 +5,10 @@ from weaviate_datasets import (
     JeopardyQuestions1k,
     WineReviews,
     WikiArticles,
+    WikiCities,
 )
 
-dataset_classes = [JeopardyQuestions10k, JeopardyQuestions1k, WineReviews, WikiArticles]
+dataset_classes = [JeopardyQuestions10k, JeopardyQuestions1k, WineReviews, WikiArticles, WikiCities]
 
 
 def test_instantiation():

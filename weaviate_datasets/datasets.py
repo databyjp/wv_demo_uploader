@@ -211,6 +211,77 @@ class WikiArticles(Dataset):
         return samples
 
 
+class WikiCities(Dataset):
+    data_fpath = os.path.join(basedir, "data", "wiki_cities_500.csv")
+    arr_fpath = os.path.join(basedir, "data", "wiki_cities_500.npy")
+
+    def __init__(self):
+        super().__init__()
+        self._dataset_size = len(pd.read_csv(self.data_fpath))
+        self._class_definitions = [
+            {
+                "class": "WikiCities",
+                "description": "A Wikipedia article relating to a city",
+                "properties": [
+                    {"name": "city_name", "dataType": ["text"]},
+                    {"name": "city_ascii", "dataType": ["text"]},
+                    {"name": "lat", "dataType": ["number"]},
+                    {"name": "lng", "dataType": ["number"]},
+                    {"name": "iso3", "dataType": ["text"]},
+                    {"name": "country", "dataType": ["text"]},
+                    {"name": "population", "dataType": ["int"]},
+                    {"name": "url", "dataType": ["string"]},
+                    {"name": "wiki_summary", "dataType": ["text"]},
+                ],
+                "vectorizer": "text2vec-openai",
+                "moduleConfig": {
+                    "qna-openai": {
+                        "model": "text-davinci-002",
+                        "maxTokens": 16,
+                        "temperature": 0.0,
+                        "topP": 1,
+                        "frequencyPenalty": 0.0,
+                        "presencePenalty": 0.0,
+                    }
+                },
+            }
+        ]
+
+    def _class_dataloader(self, class_name):
+        if class_name == "WikiCities":
+            df = pd.read_csv(self.data_fpath)
+            df["population"] = df["population"].astype(int)
+            vec_array = np.load(self.arr_fpath)
+            for i, row in df.iterrows():
+                data_obj = {
+                    "city_name": row["city"],
+                    "city_ascii": row["city_ascii"],
+                    "lat": row["lat"],
+                    "lng": row["lng"],
+                    "iso3": row["iso3"],
+                    "country": row["country"],
+                    "population": row["population"],
+                    "url": row["url"],
+                    "wiki_summary": row["wiki_summary"],
+                }
+                vec = vec_array[i].tolist()
+                yield data_obj, vec
+        else:
+            raise ValueError("Unknown class name")
+
+    def upload_objects(self, client: Client, batch_size: int) -> bool:
+        for class_name in self.get_class_names():
+            self._class_uploader(client, class_name, batch_size)
+        return True
+
+    def get_sample(self) -> dict:
+        samples = dict()
+        for c in self.get_class_names():
+            dl = self._class_dataloader(c)
+            samples[c] = next(dl)
+        return samples
+
+
 class WineReviews(Dataset):
     winedata_path = os.path.join(basedir, "data", "winemag_tiny.csv")
 
