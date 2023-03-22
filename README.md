@@ -33,6 +33,7 @@ import json
 wv_url = "https://some-endpoint.weaviate.network"
 api_key = os.environ.get("OPENAI_API_KEY")
 
+# If authentication required (e.g. using WCS)
 auth = weaviate.AuthClientPassword(
     username=os.environ.get("WCS_USER"),
     password=os.environ.get("WCS_PASS"),
@@ -40,8 +41,8 @@ auth = weaviate.AuthClientPassword(
 
 client = weaviate.Client(
     url=wv_url,
-    auth_client_secret=auth,
-    additional_headers={"X-OpenAI-Api-Key": api_key},
+    auth_client_secret=auth,  # If authentication required
+    additional_headers={"X-OpenAI-Api-Key": api_key},  # If using OpenAI inference
 )
 ```
 
@@ -65,9 +66,9 @@ client = weaviate.Client(
 - WineReviews (50 wine reviews)
 
 ### Including vectors
-- WikiCities (500 large cities + Wikipedia summaries)
-- JeopardyQuestions1k (10,000 Jeopardy questions & answers)
-- JeopardyQuestions10k (10,000 Jeopardy questions & answers)
+- WikiCities (500 large cities + Wikipedia summaries, vectorized with OpenAI `text-embedding-ada-002`)
+- JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
+- JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
 
 ## Source code
 
