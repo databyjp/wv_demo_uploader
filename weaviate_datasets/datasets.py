@@ -137,7 +137,7 @@ class Dataset:
 
         return True
 
-    def upload_dataset(self, client: Client, batch_size=200) -> bool:
+    def upload_dataset(self, client: Client, batch_size=300) -> bool:
         """
         Adds the class to the schema, then
         Upload the objects.
