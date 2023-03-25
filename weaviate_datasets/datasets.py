@@ -220,7 +220,7 @@ class WikiCities(Dataset):
         self._dataset_size = len(pd.read_csv(self.data_fpath))
         self._class_definitions = [
             {
-                "class": "WikiCities",
+                "class": "WikiCity",
                 "description": "A Wikipedia article relating to a city",
                 "properties": [
                     {"name": "city_name", "dataType": ["text"]},
@@ -248,7 +248,7 @@ class WikiCities(Dataset):
         ]
 
     def _class_dataloader(self, class_name):
-        if class_name == "WikiCities":
+        if class_name == "WikiCity":
             df = pd.read_csv(self.data_fpath)
             df["population"] = df["population"].astype(int)
             vec_array = np.load(self.arr_fpath)
