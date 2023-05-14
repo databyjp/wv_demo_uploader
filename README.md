@@ -70,6 +70,11 @@ client = weaviate.Client(
 - JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
 - JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
 
+## Data sources
+
+https://www.kaggle.com/datasets/zynicide/wine-reviews
+https://www.kaggle.com/datasets/tunguz/200000-jeopardy-questions
+
 ## Source code
 
 https://github.com/databyjp/wv_demo_uploader

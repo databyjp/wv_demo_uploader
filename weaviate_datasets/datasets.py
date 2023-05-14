@@ -157,7 +157,7 @@ class WikiArticles(Dataset):
                 "description": "A Wikipedia article",
                 "properties": [
                     {"name": "title", "dataType": ["text"]},
-                    {"name": "url", "dataType": ["string"]},
+                    {"name": "url", "dataType": ["text"], "tokenization": ["field"]},
                     {"name": "wiki_summary", "dataType": ["text"]},
                 ],
                 "vectorizer": "text2vec-openai",
@@ -230,7 +230,7 @@ class WikiCities(Dataset):
                     {"name": "iso3", "dataType": ["text"]},
                     {"name": "country", "dataType": ["text"]},
                     {"name": "population", "dataType": ["int"]},
-                    {"name": "url", "dataType": ["string"]},
+                    {"name": "url", "dataType": ["text"], "tokenization": ["field"]},
                     {"name": "wiki_summary", "dataType": ["text"]},
                 ],
                 "vectorizer": "text2vec-openai",
@@ -300,12 +300,12 @@ class WineReviews(Dataset):
                     },
                     {
                         "name": "title",
-                        "dataType": ["string"],
+                        "dataType": ["text"],
                         "description": "Name of the wine",
                     },
                     {
                         "name": "country",
-                        "dataType": ["string"],
+                        "dataType": ["text"],
                         "description": "Originating country",
                     },
                     {
@@ -391,8 +391,9 @@ class JeopardyQuestions1k(Dataset):
                     },
                     {
                         "name": "round",
-                        "dataType": ["string"],
+                        "dataType": ["text"],
                         "description": "Jeopardy round",
+                        "tokenization": "field"
                     },
                     {
                         "name": "air_date",
