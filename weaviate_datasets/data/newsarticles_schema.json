@@ -1,0 +1,203 @@
+{
+    "classes": [
+        {
+            "class": "Publication",
+            "description": "A publication with an online source",
+            "vectorizer": "text2vec-openai",
+            "moduleConfig": {
+                "text2vec-openai": {
+                  "vectorizeClassName": false
+                }
+            },
+            "properties": [
+                {
+                    "dataType": [
+                        "text"
+                    ],
+                    "description": "Name of the publication",
+                    "tokenization": "whitespace",
+                    "name": "name"
+                },
+                {
+                    "dataType": [
+                        "geoCoordinates"
+                    ],
+                    "description": "Geo location of the HQ",
+                    "name": "headquartersGeoLocation"
+                },
+                {
+                    "dataType": [
+                        "Article"
+                    ],
+                    "description": "The articles this publication has",
+                    "name": "hasArticles"
+                }
+            ]
+        },
+        {
+            "class": "Author",
+            "description": "An author",
+            "vectorizer": "text2vec-openai",
+            "moduleConfig": {
+                "text2vec-openai": {
+                  "vectorizeClassName": true
+                }
+            },
+            "properties": [
+                {
+                    "dataType": [
+                        "text"
+                    ],
+                    "description": "Name of the author",
+                    "name": "name",
+                    "tokenization": "field",
+                    "moduleConfig": {
+                      "text2vec-openai": {
+                        "vectorizePropertyName": false
+                      }
+                    }
+                },
+                {
+                    "dataType": [
+                        "Article"
+                    ],
+                    "description": "Articles this author wrote",
+                    "name": "wroteArticles"
+                },
+                {
+                    "dataType": [
+                        "Publication"
+                    ],
+                    "description": "A publication this author has written for",
+                    "name": "writesFor"
+                }
+            ]
+        },
+        {
+            "class": "Article",
+            "description": "A news article",
+            "vectorizer": "text2vec-openai",
+            "moduleConfig": {
+                "text2vec-openai": {
+                  "vectorizeClassName": false
+                }
+            },
+            "properties": [
+                {
+                    "dataType": [
+                        "text"
+                    ],
+                    "description": "Title of the article",
+                    "name": "title",
+                    "tokenization": "word",
+                    "moduleConfig": {
+                      "text2vec-openai": {
+                        "vectorizePropertyName": false
+                      }
+                    },
+                    "indexFilterable": true,
+                    "indexSearchable": true
+                },
+                {
+                    "dataType": [
+                        "text"
+                    ],
+                    "description": "The url of the article",
+                    "name": "url",
+                    "tokenization": "field",
+                    "moduleConfig": {
+                      "text2vec-openai": {
+                        "vectorizePropertyName": false
+                      }
+                    },
+                    "indexFilterable": true,
+                    "indexSearchable": false
+                },
+                {
+                    "dataType": [
+                        "text"
+                    ],
+                    "description": "The summary of the article",
+                    "name": "summary",
+                    "tokenization": "word",
+                    "moduleConfig": {
+                      "text2vec-openai": {
+                        "vectorizePropertyName": false
+                      }
+                    },
+                    "indexFilterable": true,
+                    "indexSearchable": true
+                },
+                {
+                    "dataType": [
+                        "date"
+                    ],
+                    "description": "The date of publication of the article",
+                    "name": "publicationDate"
+                },
+                {
+                    "dataType": [
+                        "int"
+                    ],
+                    "description": "Words in this article",
+                    "name": "wordCount"
+                },
+                {
+                    "dataType": [
+                        "Author", "Publication"
+                    ],
+                    "description": "Authors this article has",
+                    "name": "hasAuthors"
+                },
+                {
+                    "dataType": [
+                        "Publication"
+                    ],
+                    "description": "Publication this article appeared in",
+                    "name": "inPublication"
+                },
+                {
+                    "dataType": [
+                        "Category"
+                    ],
+                    "description": "Category that the article belongs to",
+                    "name": "ofCategory"
+                },
+                {
+                    "dataType": [
+                        "boolean"
+                    ],
+                    "description": "Whether the article is currently accessible through the url",
+                    "name": "isAccessible"
+                }
+            ]
+        },
+        {
+            "class": "Category",
+            "description": "Category an article belongs to",
+            "vectorizer": "text2vec-openai",
+            "moduleConfig": {
+                "text2vec-openai": {
+                  "vectorizeClassName": false
+                }
+            },
+            "properties": [
+                {
+                    "dataType": [
+                        "text"
+                    ],
+                    "description": "Category name",
+                    "name": "name",
+                    "tokenization": "field",
+                    "moduleConfig": {
+                      "text2vec-openai": {
+                        "vectorizePropertyName": false
+                      }
+                    },
+                    "indexFilterable": true,
+                    "indexSearchable": true
+                }
+            ]
+        }
+    ]
+}

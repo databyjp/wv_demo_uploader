@@ -47,10 +47,7 @@ client = weaviate.Client(
 ```
 
 ### Built-in methods
-
-- `.add_to_schema(client)` - add defined classes to schema; returns status & any classes already present
-- `.upload_objects(client, batch_size)` - adds objects; must specify batch size
-- `.upload_dataset(client)` - runs `.add_to_schema` and `.upload_objects`; default batch size 100
+- `.upload_dataset(client)` - add defined classes to schema, adds objects
 
 - `.get_class_definitions()`: See the schema definition to be added
 - `.get_class_names()`: See class names in the dataset
@@ -66,14 +63,15 @@ client = weaviate.Client(
 - WineReviews (50 wine reviews)
 
 ### Including vectors
-- WikiCities (500 large cities + Wikipedia summaries, vectorized with OpenAI `text-embedding-ada-002`)
 - JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
 - JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
+- NewsArticles (News articles, including their corresponding publications, authors & categories, vectorized with OpenAI `text-embedding-ada-002`)
 
 ## Data sources
 
 https://www.kaggle.com/datasets/zynicide/wine-reviews
 https://www.kaggle.com/datasets/tunguz/200000-jeopardy-questions
+https://github.com/weaviate/DEMO-NewsPublications
 
 ## Source code
 

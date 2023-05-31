@@ -4,6 +4,10 @@ temp
 *10k*
 weaviate-demo-datasets*
 
+# Contents of `newsarticles.zip`
+weaviate_datasets/data/newsarticles/
+weaviate_datasets/data/newsarticles_*.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
