@@ -4,4 +4,5 @@ from .datasets import (
     WikiCities,
     JeopardyQuestions1k,
     JeopardyQuestions10k,
+    NewsArticles,
 )

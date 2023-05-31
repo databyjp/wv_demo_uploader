@@ -11,6 +11,7 @@ import logging
 from typing import Optional
 from pathlib import Path
 from zipfile import ZipFile
+import requests
 
 
 logging.basicConfig(
@@ -200,7 +201,7 @@ class WikiArticles(Dataset):
                 "description": "A Wikipedia article",
                 "properties": [
                     {"name": "title", "dataType": ["text"]},
-                    {"name": "url", "dataType": ["text"], "tokenization": ["field"]},
+                    {"name": "url", "dataType": ["text"], "tokenization": "field"},
                     {"name": "wiki_summary", "dataType": ["text"]},
                 ],
                 "vectorizer": "text2vec-openai",
@@ -273,7 +274,7 @@ class WikiCities(Dataset):
                     {"name": "iso3", "dataType": ["text"]},
                     {"name": "country", "dataType": ["text"]},
                     {"name": "population", "dataType": ["int"]},
-                    {"name": "url", "dataType": ["text"], "tokenization": ["field"]},
+                    {"name": "url", "dataType": ["text"], "tokenization": "field"},
                     {"name": "wiki_summary", "dataType": ["text"]},
                 ],
                 "vectorizer": "text2vec-openai",
@@ -530,12 +531,24 @@ class NewsArticles(Dataset):
     def __init__(self):
         super().__init__()
         self._dataset_size = None
+        self._dataset_path = os.path.join(basedir, "data/newsarticles.zip")
         with open(os.path.join(basedir, "data/newsarticles_schema.json")) as f:
             self._class_definitions = json.load(f)
+
+
+        # Download the dataset if not done so already
+        if not os.path.exists(self._dataset_path):
+            ## Download data https://github.com/databyjp/wv_demo_uploader/raw/main/weaviate_datasets/data/newsarticles.zip
+            print("Downloading data... please wait")
+            url = "https://github.com/databyjp/wv_demo_uploader/raw/main/weaviate_datasets/data/newsarticles.zip"
+            r = requests.get(url)
+            with open(self._dataset_path, "wb") as f:
+                f.write(r.content)
+
         # unzip the data if not done so already
         if not os.path.exists(Path(basedir)/"data"/"newsarticles"):
             print("Unzipping data...")
-            zipfile = os.path.join(basedir, "data/newsarticles.zip")
+            zipfile = self._dataset_path
             with ZipFile(zipfile, "r") as zip_ref:
                 zip_ref.extractall(os.path.join(basedir, "data"))
 
