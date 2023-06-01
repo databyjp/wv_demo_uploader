@@ -1,4 +1,5 @@
 .DS_Store
+.idea
 temp*.ipynb
 temp
 *10k*

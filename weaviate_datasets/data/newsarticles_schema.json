@@ -82,6 +82,9 @@
                   "vectorizeClassName": false
                 }
             },
+            "invertedIndexConfig": {
+                "indexTimestamps": true
+            },
             "properties": [
                 {
                     "dataType": [
