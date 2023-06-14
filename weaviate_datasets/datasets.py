@@ -213,6 +213,9 @@ class WikiArticles(Dataset):
                         "topP": 1,
                         "frequencyPenalty": 0.0,
                         "presencePenalty": 0.0,
+                    },
+                    "generative-openai": {
+                        "model": "gpt-3.5-turbo",
                     }
                 },
             }
@@ -286,6 +289,9 @@ class WikiCities(Dataset):
                         "topP": 1,
                         "frequencyPenalty": 0.0,
                         "presencePenalty": 0.0,
+                    },
+                    "generative-openai": {
+                        "model": "gpt-3.5-turbo",
                     }
                 },
             }
@@ -336,6 +342,11 @@ class WineReviews(Dataset):
             {
                 "class": "WineReview",
                 "vectorizer": "text2vec-openai",
+                "moduleConfig": {
+                    "generative-openai": {
+                        "model": "gpt-3.5-turbo",
+                    }
+                },
                 "properties": [
                     {
                         "name": "review_body",
@@ -407,11 +418,21 @@ class JeopardyQuestions1k(Dataset):
                 "class": "JeopardyCategory",
                 "description": "A Jeopardy! category",
                 "vectorizer": "text2vec-openai",
+                "moduleConfig": {
+                    "generative-openai": {
+                        "model": "gpt-3.5-turbo",
+                    }
+                },
             },
             {
                 "class": "JeopardyQuestion",
                 "description": "A Jeopardy! question",
                 "vectorizer": "text2vec-openai",
+                "moduleConfig": {
+                    "generative-openai": {
+                        "model": "gpt-3.5-turbo",
+                    }
+                },
                 "properties": [
                     {
                         "name": "hasCategory",
