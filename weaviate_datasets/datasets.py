@@ -418,6 +418,13 @@ class JeopardyQuestions1k(Dataset):
                 "class": "JeopardyCategory",
                 "description": "A Jeopardy! category",
                 "vectorizer": "text2vec-openai",
+                "properties": [
+                    {
+                        "name": "title",
+                        "dataType": ["text"],
+                        "description": "The category title",
+                    },
+                ],
                 "moduleConfig": {
                     "generative-openai": {
                         "model": "gpt-3.5-turbo",
@@ -432,6 +439,11 @@ class JeopardyQuestions1k(Dataset):
                     "generative-openai": {
                         "model": "gpt-3.5-turbo",
                     }
+                },
+                "invertedIndexConfig": {
+                    "indexPropertyLength": True,
+                    "indexTimestamps": True,
+                    "indexNullState": True,
                 },
                 "properties": [
                     {
@@ -522,8 +534,8 @@ class JeopardyQuestions1k(Dataset):
         samples = dict()
         dl = self._class_pair_dataloader()
         (question_obj, question_vec), (category_obj, category_vec) = next(dl)
-        samples["JeopardyCategory"] = question_obj
-        samples["JeopardyQuestion"] = category_obj
+        samples["JeopardyCategory"] = category_obj
+        samples["JeopardyQuestion"] = question_obj
         return samples
 
 
