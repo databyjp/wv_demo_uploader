@@ -4,11 +4,9 @@ import pandas as pd
 import numpy as np
 from weaviate.util import generate_uuid5
 import uuid
-from weaviate import Client
-from weaviate.batch import Batch
+from weaviate import Client, Tenant
 from tqdm import tqdm
 import logging
-from typing import Optional
 from pathlib import Path
 from zipfile import ZipFile
 import requests
@@ -120,28 +118,39 @@ class Dataset:
 
     # ----- DATA UPLOADER GENERIC METHODS -----
 
-    def _class_uploader(self, client: Client, class_name: str, batch_size: int) -> bool:
+    def _class_uploader(self, client: Client, class_name: str, batch_size: int, tenant=None) -> bool:
         """
         Base uploader method for uploading a single class.
         """
-        with client.batch(
-            batch_size=batch_size
-        ) as batch:
+        client.batch.configure(batch_size=batch_size)
+        with client.batch as batch:
             for data_obj, vector in tqdm(self._class_dataloader(class_name)):
                 uuid = generate_uuid5(data_obj)
-                batch.add_data_object(data_obj, class_name, uuid=uuid, vector=vector)
+                batch.add_data_object(
+                    data_obj,
+                    class_name,
+                    uuid=uuid,
+                    vector=vector,
+                    tenant=tenant,
+                )
 
         return True
 
     def _class_pair_uploader(
-        self, client: Client, class_from: str, class_to: str, batch_size: int
+        self, client: Client, class_from: str, class_to: str, batch_size: int, tenant = None
     ) -> bool:
         """
         Base uploader method for uploading a pair of classes.
         """
-        with client.batch(
-            batch_size=batch_size
-        ) as batch:
+        if tenant is not None:
+            for class_name in [class_from, class_to]:
+                client.schema.add_class_tenants(
+                    class_name=class_name,
+                    tenants=[Tenant(name=tenant)]
+                )
+
+        client.batch.configure(batch_size=batch_size)
+        with client.batch as batch:
             for (data_obj_from, vec_from), (data_obj_to, vec_to) in tqdm(
                 self._class_pair_dataloader()
             ):
@@ -152,6 +161,7 @@ class Dataset:
                     class_from,
                     uuid=id_from,
                     vector=vec_from,
+                    tenant=tenant
                 )
                 # Add "class_to" objects
                 id_to = generate_uuid5(data_obj_to)
@@ -160,6 +170,7 @@ class Dataset:
                     class_to,
                     uuid=id_to,
                     vector=vec_to,
+                    tenant=tenant
                 )
 
                 # Add references
@@ -177,6 +188,7 @@ class Dataset:
                         from_property_name=xref_prop_def["name"],
                         to_object_uuid=id_to,
                         to_object_class_name=class_to,
+                        tenant=tenant
                     )
 
         return True
@@ -405,6 +417,33 @@ class WineReviews(Dataset):
         return samples
 
 
+class WineReviewsMT(WineReviews):
+    winedata_path = os.path.join(basedir, "data", "winemag_tiny.csv")
+    tenants = ["tenantA", "tenantB"]
+
+    def __init__(self):
+        super().__init__()
+        for i in range(len(self._class_definitions)):
+            self._class_definitions[i]["multiTenancyConfig"] = {"enabled": True}
+
+    def upload_objects(self, client: Client, batch_size: int) -> bool:
+        for tenant in self.tenants:
+            for class_name in self.get_class_names():
+                client.schema.add_class_tenants(
+                    class_name=class_name,
+                    tenants=[Tenant(name=tenant)]
+                )
+                self._class_uploader(client, class_name, batch_size, tenant)
+        return True
+
+    def get_sample(self) -> dict:
+        samples = dict()
+        for c in self.get_class_names():
+            dl = self._class_dataloader(c)
+            samples[c] = next(dl)
+        return samples
+
+
 class JeopardyQuestions1k(Dataset):
     data_fpath = os.path.join(basedir, "data", "jeopardy_1k.json")
     arr_fpath = os.path.join(basedir, "data", "jeopardy_1k.json.npy")
@@ -549,6 +588,26 @@ class JeopardyQuestions10k(JeopardyQuestions1k):
         self._dataset_size = 10000
 
 
+class JeopardyQuestions1kMT(JeopardyQuestions1k):
+    tenants = ["tenantA", "tenantB"]
+
+    def __init__(self):
+        super().__init__()
+        for i in range(len(self._class_definitions)):
+            self._class_definitions[i]["multiTenancyConfig"] = {"enabled": True}
+
+    def upload_objects(self, client: Client, batch_size: int) -> bool:
+        for tenant in self.tenants:
+            self._class_pair_uploader(
+                client,
+                class_from="JeopardyQuestion",
+                class_to="JeopardyCategory",
+                batch_size=batch_size,
+                tenant=tenant
+            )
+        return True
+
+
 class NewsArticles(Dataset):
 
     _embeddings_files = {
@@ -614,9 +673,8 @@ class NewsArticles(Dataset):
             with open(os.path.join(basedir, embeddings_file), "r") as f:
                 embeddings = json.load(f)
 
-            with client.batch(
-                batch_size=batch_size
-            ) as batch:
+            client.batch.configure(batch_size=batch_size)
+            with client.batch as batch:
                 for dfile in datafiles:
                     with open(os.path.join(self._datadir, ctype, dfile), "r") as f:
                         data = json.load(f)
@@ -638,9 +696,8 @@ class NewsArticles(Dataset):
                 embeddings = json.load(f)
             embedding_dict[ctype] = embeddings
 
-        with client.batch(
-            batch_size=batch_size
-        ) as batch:
+        client.batch.configure(batch_size=batch_size)
+        with client.batch as batch:
             for datafile in datafiles:
                 try:
                     with open(os.path.join(self._datadir, datafile), "r") as f:

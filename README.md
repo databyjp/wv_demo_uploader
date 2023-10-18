@@ -19,7 +19,7 @@ Once you instantiate a dataset, you can upload it to Weaviate with the following
 
 ```python
 import weaviate_datasets
-dataset = weaviate_datasets.JeopardyQuestions10k()  # Instantiate dataset
+dataset = weaviate_datasets.JeopardyQuestions1k()  # Instantiate dataset
 dataset.upload_dataset(client)  # Add class to schema & upload objects (uses batch uploads by default)
 ```
 
@@ -28,16 +28,12 @@ Where `client` is the instantiated `weaviate.Client` object, such as:
 ```python
 import weaviate
 import os
-import json
 
 wv_url = "https://some-endpoint.weaviate.network"
 api_key = os.environ.get("OPENAI_API_KEY")
 
 # If authentication required (e.g. using WCS)
-auth = weaviate.AuthClientPassword(
-    username=os.environ.get("WCS_USER"),
-    password=os.environ.get("WCS_PASS"),
-)
+auth = weaviate.AuthApiKey("your-weaviate-apikey")
 
 client = weaviate.Client(
     url=wv_url,
@@ -48,7 +44,6 @@ client = weaviate.Client(
 
 ### Built-in methods
 - `.upload_dataset(client)` - add defined classes to schema, adds objects
-
 - `.get_class_definitions()`: See the schema definition to be added
 - `.get_class_names()`: See class names in the dataset
 - `.get_sample()`: See a sample data object
@@ -61,9 +56,11 @@ client = weaviate.Client(
 ### Not including vectors
 - WikiArticles (A handful of Wikipedia summaries)
 - WineReviews (50 wine reviews)
+- WineReviewsMT (50 wine reviews, multi-tenancy enabled)
 
 ### Including vectors
 - JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
+- JeopardyQuestions1kMT (1,000 Jeopardy questions & answers, multi-tenancy enabled, vectorized with OpenAI `text-embedding-ada-002`)
 - JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
 - NewsArticles (News articles, including their corresponding publications, authors & categories, vectorized with OpenAI `text-embedding-ada-002`)
 
