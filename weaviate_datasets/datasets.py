@@ -346,13 +346,14 @@ class WikiCities(Dataset):
 
 class WineReviews(Dataset):
     winedata_path = os.path.join(basedir, "data", "winemag_tiny.csv")
+    class_name = "WineReview"
 
     def __init__(self):
         super().__init__()
         self._dataset_size = len(pd.read_csv(self.winedata_path))
         self._class_definitions = [
             {
-                "class": "WineReview",
+                "class": self.class_name,
                 "vectorizer": "text2vec-openai",
                 "moduleConfig": {
                     "generative-openai": {
@@ -390,7 +391,7 @@ class WineReviews(Dataset):
         ]
 
     def _class_dataloader(self, class_name):
-        if class_name == "WineReview":
+        if class_name == self.class_name:
             df = pd.read_csv(self.winedata_path)
             for _, row in df.iterrows():
                 data_obj = {
@@ -420,6 +421,7 @@ class WineReviews(Dataset):
 class WineReviewsMT(WineReviews):
     winedata_path = os.path.join(basedir, "data", "winemag_tiny.csv")
     tenants = ["tenantA", "tenantB"]
+    class_name = "WineReviewMT"
 
     def __init__(self):
         super().__init__()
@@ -449,12 +451,15 @@ class JeopardyQuestions1k(Dataset):
     arr_fpath = os.path.join(basedir, "data", "jeopardy_1k.json.npy")
     category_vec_fpath = os.path.join(basedir, "data", "jeopardy_1k_categories.csv")
 
+    question_class = "JeopardyQuestion"
+    category_class = "JeopardyCategory"
+
     def __init__(self):
         super().__init__()
         self._dataset_size = 1000
         self._class_definitions = [
             {
-                "class": "JeopardyCategory",
+                "class": self.category_class,
                 "description": "A Jeopardy! category",
                 "vectorizer": "text2vec-openai",
                 "properties": [
@@ -471,7 +476,7 @@ class JeopardyQuestions1k(Dataset):
                 },
             },
             {
-                "class": "JeopardyQuestion",
+                "class": self.question_class,
                 "description": "A Jeopardy! question",
                 "vectorizer": "text2vec-openai",
                 "moduleConfig": {
@@ -487,7 +492,7 @@ class JeopardyQuestions1k(Dataset):
                 "properties": [
                     {
                         "name": "hasCategory",
-                        "dataType": ["JeopardyCategory"],
+                        "dataType": [self.category_class],
                         "description": "The category of the question",
                     },
                     {
@@ -564,8 +569,8 @@ class JeopardyQuestions1k(Dataset):
     def upload_objects(self, client: Client, batch_size: int) -> bool:
         return self._class_pair_uploader(
             client,
-            class_from="JeopardyQuestion",
-            class_to="JeopardyCategory",
+            class_from=self.question_class,
+            class_to=self.category_class,
             batch_size=batch_size,
         )
 
@@ -573,8 +578,8 @@ class JeopardyQuestions1k(Dataset):
         samples = dict()
         dl = self._class_pair_dataloader()
         (question_obj, question_vec), (category_obj, category_vec) = next(dl)
-        samples["JeopardyCategory"] = category_obj
-        samples["JeopardyQuestion"] = question_obj
+        samples[self.category_class] = category_obj
+        samples[self.question_class] = question_obj
         return samples
 
 
@@ -591,6 +596,9 @@ class JeopardyQuestions10k(JeopardyQuestions1k):
 class JeopardyQuestions1kMT(JeopardyQuestions1k):
     tenants = ["tenantA", "tenantB"]
 
+    question_class = "JeopardyQuestionMT"
+    category_class = "JeopardyCategoryMT"
+
     def __init__(self):
         super().__init__()
         for i in range(len(self._class_definitions)):
@@ -600,8 +608,8 @@ class JeopardyQuestions1kMT(JeopardyQuestions1k):
         for tenant in self.tenants:
             self._class_pair_uploader(
                 client,
-                class_from="JeopardyQuestion",
-                class_to="JeopardyCategory",
+                class_from=self.question_class,
+                class_to=self.category_class,
                 batch_size=batch_size,
                 tenant=tenant
             )
