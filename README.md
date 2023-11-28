@@ -8,57 +8,54 @@ This is an educational project that aims to make it easy to upload demo data to 
 pip install weaviate-demo-datasets
 ```
 
-All datasets are based on the `Dataset` superclass, which includes a number of built-in methods to make it easier to work with it.
-
-Each dataset includes a default vectorizer configuration for convenience, which can be:
-- viewed via the `.get_class_definitions` method and
-- changed via the `.set_vectorizer` method.
+Each dataset includes a default vectorizer configuration for convenience.
 The target Weaviate instance must include the specified vectorizer module.
 
 Once you instantiate a dataset, you can upload it to Weaviate with the following:
 
 ```python
-import weaviate_datasets
-dataset = weaviate_datasets.JeopardyQuestions1k()  # Instantiate dataset
-dataset.upload_dataset(client)  # Add class to schema & upload objects (uses batch uploads by default)
+import weaviate_datasets as wd
+dataset = wd.JeopardyQuestions1k()  # Instantiate dataset
+dataset.upload_dataset(client)  # Pass the Weaviate client instance
 ```
 
-Where `client` is the instantiated `weaviate.Client` object, such as:
+Where `client` is the instantiated `weaviate.WeaviateClient` object, such as:
 
 ```python
 import weaviate
 import os
 
-wv_url = "https://some-endpoint.weaviate.network"
-api_key = os.environ.get("OPENAI_API_KEY")
-
-# If authentication required (e.g. using WCS)
-auth = weaviate.AuthApiKey("your-weaviate-apikey")
-
-client = weaviate.Client(
-    url=wv_url,
-    auth_client_secret=auth,  # If authentication required
-    additional_headers={"X-OpenAI-Api-Key": api_key},  # If using OpenAI inference
+client = weaviate.connect_to_local(
+    headers={"X-OpenAI-Api-Key": os.getenv("OPENAI_APIKEY")}
 )
+```
+
+To use a `weaviate.Client` object, as used in the Weaviate Python client `v3.x`, import the dataset class from `weaviate_datasets.v3`.   
+
+```python
+import weaviate_datasets.v3_datasets as wd_v3
+dataset = wd_v3.JeopardyQuestions1k()  # Instantiate dataset
+dataset.upload_dataset(client)  # Pass the Weaviate client instance
 ```
 
 ### Built-in methods
 - `.upload_dataset(client)` - add defined classes to schema, adds objects
-- `.get_class_definitions()`: See the schema definition to be added
-- `.get_class_names()`: See class names in the dataset
 - `.get_sample()`: See a sample data object
-- `.classes_in_schema(client)`: Check whether each class is already in the Weaviate schema
-- `.delete_existing_dataset_classes(client)`: If dataset classes are already in the Weaviate instance, delete them from the Weaviate instance.
-- `.set_vectorizer(vectorizer_name, module_config)`: Set the vectorizer and corresponding module configuration for the dataset. Datasets come pre-configured with a vectorizer & module configuration.
 
 ## Available classes
 
-### Not including vectors
+- WineReviews (50 wine reviews)
+- JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
+- JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
+
+## Available classes - V3 collection 
+
+#### Not including vectors
 - WikiArticles (A handful of Wikipedia summaries)
 - WineReviews (50 wine reviews)
 - WineReviewsMT (50 wine reviews, multi-tenancy enabled)
 
-### Including vectors
+#### Including vectors
 - JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
 - JeopardyQuestions1kMT (1,000 Jeopardy questions & answers, multi-tenancy enabled, vectorized with OpenAI `text-embedding-ada-002`)
 - JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)

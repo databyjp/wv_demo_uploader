@@ -1,6 +1,6 @@
 import pytest
-from weaviate_datasets.datasets import Dataset
-from weaviate_datasets import (
+from weaviate_datasets.v3_datasets import Dataset
+from weaviate_datasets.v3_datasets import (
     JeopardyQuestions10k,
     JeopardyQuestions1k,
     WineReviews,
@@ -8,7 +8,13 @@ from weaviate_datasets import (
     WikiCities,
 )
 
-dataset_classes = [JeopardyQuestions10k, JeopardyQuestions1k, WineReviews, WikiArticles, WikiCities]
+dataset_classes = [
+    JeopardyQuestions10k,
+    JeopardyQuestions1k,
+    WineReviews,
+    WikiArticles,
+    WikiCities,
+]
 
 
 def test_instantiation():
