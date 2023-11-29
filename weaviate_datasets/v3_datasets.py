@@ -203,6 +203,9 @@ class Dataset:
         Adds the class to the schema,
         then calls `upload_objects` to upload the objects.
         """
+        if type(client) == WeaviateClient:
+            raise TypeError("Sorry, this is for the `v3` Weaviate Python Client, with the Client object type. Please refer to the README for more information.")
+
         schema_add_results = self.add_to_schema(client)
         self.upload_objects(client, batch_size=batch_size)
         return True
@@ -659,6 +662,9 @@ class NewsArticles(Dataset):
         return str(response)
 
     def upload_dataset(self, client: Client, batch_size=300) -> bool:
+        if type(client) == WeaviateClient:
+            raise TypeError("Sorry, this is for the `v3` Weaviate Python Client, with the Client object type. Please refer to the README for more information.")
+
         self.add_to_schema(client)
         self._load_publication_and_category(client, batch_size)
         self._load_authors_article(client, batch_size)

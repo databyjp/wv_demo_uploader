@@ -3,7 +3,7 @@ from typing import Dict, Tuple, Union, List, Generator
 from pathlib import Path
 import pandas as pd
 from weaviate.util import generate_uuid5
-from weaviate import WeaviateClient
+from weaviate import WeaviateClient, Client
 from weaviate.classes import Configure, Property, ReferenceProperty, DataType, Tokenization
 from weaviate.collections.collection import Collection
 from tqdm import tqdm
@@ -91,6 +91,9 @@ class SimpleDataset:
         Adds the class to the schema,
         then calls `upload_objects` to upload the objects.
         """
+        if type(client) == Client:
+            raise TypeError("Sorry, this is for the `v4` Weaviate Python Client, with the WeaviateClient object type. Please refer to the README for more information.")
+
         if overwrite:
             client.collections.delete(self.collection_name)
         _ = self.add_to_schema(client)
@@ -344,6 +347,9 @@ class JeopardyQuestions1k:
         Adds the class to the schema,
         then calls `upload_objects` to upload the objects.
         """
+        if type(client) == Client:
+            raise TypeError("Sorry, this is for the `v4` Weaviate Python Client, with the WeaviateClient object type. Please refer to the README for more information.")
+
         if overwrite:
             client.collections.delete(self.question_collection)
             client.collections.delete(self.category_collection)
