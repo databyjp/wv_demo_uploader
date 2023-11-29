@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 from weaviate.util import generate_uuid5
 from weaviate import WeaviateClient, Client
-from weaviate.classes import Configure, Property, ReferenceProperty, DataType, Tokenization
+from weaviate.classes import Configure, Property, ReferenceProperty, DataType, Tokenization, Tenant
 from weaviate.collections.collection import Collection
 from tqdm import tqdm
 import numpy as np
@@ -50,19 +50,25 @@ class SimpleDataset:
     collection_name = None
     vectorizer_config = Configure.Vectorizer.text2vec_openai()
     generative_config = Configure.Generative.openai()
+    mt_config = None
+    tenants = []
     properties = list()
 
-    def add_to_schema(self, client: WeaviateClient) -> Collection:
+    def add_collection(self, client: WeaviateClient) -> Collection:
         """
         For each class in the dataset, add its definition to the Weaviate instance.
         """
-        reviews = client.collections.create(
+        collection = client.collections.create(
             name=self.collection_name,
             vectorizer_config=self.vectorizer_config,
             generative_config=self.generative_config,
-            properties=self.properties
+            properties=self.properties,
+            multi_tenancy_config=self.mt_config
         )
-        return reviews
+        if self.mt_config is not None:
+            collection.tenants.create(self.tenants)
+
+        return collection
 
     def _class_dataloader(self) -> Generator:
         yield {}, None
@@ -73,16 +79,30 @@ class SimpleDataset:
         """
         Base uploader method for uploading a single class.
         """
+
         client.batch.configure(batch_size=batch_size)
+
         with client.batch as batch:
-            for data_obj, vector in tqdm(self._class_dataloader()):
-                uuid = generate_uuid5(data_obj)
-                batch.add_object(
-                    properties=data_obj,
-                    collection=self.collection_name,
-                    uuid=uuid,
-                    vector=vector,
-                )
+            if self.mt_config is None:
+                for data_obj, vector in tqdm(self._class_dataloader()):
+                    uuid = generate_uuid5(data_obj)
+                    batch.add_object(
+                        properties=data_obj,
+                        collection=self.collection_name,
+                        uuid=uuid,
+                        vector=vector,
+                    )
+            else:
+                for tenant in self.tenants:
+                    for data_obj, vector in tqdm(self._class_dataloader()):
+                        uuid = generate_uuid5(data_obj)
+                        batch.add_object(
+                            properties=data_obj,
+                            collection=self.collection_name,
+                            uuid=uuid,
+                            vector=vector,
+                            tenant=tenant.name
+                        )
 
         return True
 
@@ -91,12 +111,15 @@ class SimpleDataset:
         Adds the class to the schema,
         then calls `upload_objects` to upload the objects.
         """
+        if len(self.tenants) == 0 and self.mt_config is not None:
+            raise ValueError("A list of tenants is required with multi-tenancy switched on.")
+
         if type(client) == Client:
             raise TypeError("Sorry, this is for the `v4` Weaviate Python Client, with the WeaviateClient object type. Please refer to the README for more information.")
 
         if overwrite:
             client.collections.delete(self.collection_name)
-        _ = self.add_to_schema(client)
+        _ = self.add_collection(client)
         _ = self.upload_objects(client, batch_size=batch_size)
         return True
 
@@ -154,6 +177,14 @@ class WineReviews(SimpleDataset):
             yield data_obj, None
 
 
+class WineReviewsMT(WineReviews):
+    def __init__(self):
+        super().__init__()
+        self.collection_name = "WineReviewMT"
+        self.mt_config = Configure.multi_tenancy(enabled=True)
+        self.tenants = [Tenant(name="tenantA"), Tenant(name="tenantB")]
+
+
 class Wiki100(SimpleDataset):
 
     def __init__(self):
@@ -208,7 +239,7 @@ class JeopardyQuestions1k:
     category_collection = "JeopardyCategory"
     xref_prop_name = "hasCategory"
 
-    def add_to_schema(self, client: WeaviateClient) -> Tuple[Collection, Collection]:
+    def add_collections(self, client: WeaviateClient) -> Tuple[Collection, Collection]:
         """
         For each class in the dataset, add its definition to the Weaviate instance.
         """
@@ -354,7 +385,7 @@ class JeopardyQuestions1k:
             client.collections.delete(self.question_collection)
             client.collections.delete(self.category_collection)
 
-        _ = self.add_to_schema(client)
+        _ = self.add_collections(client)
         _ = self.upload_objects(client, batch_size=batch_size)
         return True
 

@@ -5,7 +5,7 @@ This is an educational project that aims to make it easy to upload demo data to 
 ## Usage
 
 ```shell
-pip install weaviate-demo-datasets
+pip install -U weaviate-demo-datasets
 ```
 
 Each dataset includes a default vectorizer configuration for convenience.
@@ -44,10 +44,16 @@ dataset.upload_dataset(client)  # Pass the Weaviate client instance
 
 ## Available classes
 
-- Wiki100 (Top 100 Wikipedia articles) (`WikiChunk` collection)
-- WineReviews (50 wine reviews) (`WineReview` collection)
-- JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`) (`JeopardyQuestion` and `JeopardyCategory` collections)
-- JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`) (`JeopardyQuestion` and `JeopardyCategory` collections)
+- Wiki100 (Top 100 Wikipedia articles)
+  - `WikiChunk` collection
+- WineReviews (50 wine reviews)
+  - `WineReview` collection
+- WineReviewsMT (50 wine reviews) 
+  - `WineReviewMT` collection, tenants `tenantA` and `tenantB`
+- JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
+  - `JeopardyQuestion` and `JeopardyCategory` collections
+- JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
+  - `JeopardyQuestion` and `JeopardyCategory` collections
 
 ## Available classes - V3 collection 
 
