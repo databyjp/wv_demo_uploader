@@ -1,8 +1,10 @@
 import os
+from typing import Dict, Tuple, Union, List, Generator
+from pathlib import Path
 import pandas as pd
 from weaviate.util import generate_uuid5
 from weaviate import WeaviateClient
-from weaviate.classes import Configure, Property, ReferenceProperty, ReferencePropertyMultiTarget, DataType, Tokenization
+from weaviate.classes import Configure, Property, ReferenceProperty, DataType, Tokenization
 from weaviate.collections.collection import Collection
 from tqdm import tqdm
 import numpy as np
@@ -17,10 +19,38 @@ logging.basicConfig(
 basedir = os.path.dirname(os.path.abspath(__file__))
 
 
-class WineReviews:
+def chunk_string(s, chunk_size=200, overlap=20):
+    chunks = []
+    start = 0
 
-    collection_name = "WineReview"
-    winedata_path = os.path.join(basedir, "data", "winemag_tiny.csv")
+    while start < len(s):
+        # For the first chunk, there's no overlap
+        if start == 0:
+            end = start + chunk_size
+        else:
+            end = start + chunk_size - overlap
+
+        # Ensure the end does not exceed the string length
+        end = min(end, len(s))
+
+        chunks.append(s[start:end])
+
+        # Move start for the next chunk
+        start = end
+
+        # Apply overlap from the second chunk onwards
+        if start < len(s):
+            start -= overlap
+
+    return chunks
+
+
+class SimpleDataset:
+
+    collection_name = None
+    vectorizer_config = Configure.Vectorizer.text2vec_openai()
+    generative_config = Configure.Generative.openai()
+    properties = list()
 
     def add_to_schema(self, client: WeaviateClient) -> Collection:
         """
@@ -28,49 +58,14 @@ class WineReviews:
         """
         reviews = client.collections.create(
             name=self.collection_name,
-            vectorizer_config=Configure.Vectorizer.text2vec_openai(),
-            generative_config=Configure.Generative.openai(),
-            properties=[
-                Property(
-                    name="review_body",
-                    data_type=DataType.TEXT,
-                    description="Review body"
-                ),
-                Property(
-                    name="title",
-                    data_type=DataType.TEXT,
-                    description="Name of the wine"
-                ),
-                Property(
-                    name="country",
-                    data_type=DataType.TEXT,
-                    description="Originating country"
-                ),
-                Property(
-                    name="points",
-                    data_type=DataType.INT,
-                    description="Review score in points"
-                ),
-                Property(
-                    name="price",
-                    data_type=DataType.NUMBER,
-                    description="Listed price"
-                ),
-            ]
+            vectorizer_config=self.vectorizer_config,
+            generative_config=self.generative_config,
+            properties=self.properties
         )
         return reviews
 
-    def _class_dataloader(self):
-        df = pd.read_csv(self.winedata_path)
-        for _, row in df.iterrows():
-            data_obj = {
-                "review_body": row["description"],
-                "title": row["title"],
-                "country": row["country"],
-                "points": row["points"],
-                "price": row["price"],
-            }
-            yield data_obj, None
+    def _class_dataloader(self) -> Generator:
+        yield {}, None
 
     def upload_objects(
         self, client: WeaviateClient, batch_size=200
@@ -102,6 +97,104 @@ class WineReviews:
         _ = self.upload_objects(client, batch_size=batch_size)
         return True
 
+    def get_sample(self) -> Dict:
+        dl = self._class_dataloader()
+        data_obj, _ = next(dl)
+        return data_obj
+
+
+class WineReviews(SimpleDataset):
+
+    def __init__(self):
+        self.collection_name = "WineReview"
+        self.winedata_path = os.path.join(basedir, "data", "winemag_tiny.csv")
+        self.vectorizer_config = Configure.Vectorizer.text2vec_openai()
+        self.generative_config = Configure.Generative.openai()
+        self.properties = [
+            Property(
+                name="review_body",
+                data_type=DataType.TEXT,
+                description="Review body"
+            ),
+            Property(
+                name="title",
+                data_type=DataType.TEXT,
+                description="Name of the wine"
+            ),
+            Property(
+                name="country",
+                data_type=DataType.TEXT,
+                description="Originating country"
+            ),
+            Property(
+                name="points",
+                data_type=DataType.INT,
+                description="Review score in points"
+            ),
+            Property(
+                name="price",
+                data_type=DataType.NUMBER,
+                description="Listed price"
+            )
+        ]
+
+    def _class_dataloader(self):
+        df = pd.read_csv(self.winedata_path)
+        for _, row in df.iterrows():
+            data_obj = {
+                "review_body": row["description"],
+                "title": row["title"],
+                "country": row["country"],
+                "points": row["points"],
+                "price": row["price"],
+            }
+            yield data_obj, None
+
+
+class Wiki100(SimpleDataset):
+
+    def __init__(self):
+        self.collection_name = "WikiChunk"
+        self.article_dir = Path(basedir) / "data/wiki100"
+        self.vectorizer_config = Configure.Vectorizer.text2vec_openai()
+        self.generative_config = Configure.Generative.openai()
+        self.properties = [
+            Property(
+                name="title",
+                data_type=DataType.TEXT,
+                description="Article title"
+            ),
+            Property(
+                name="chunk",
+                data_type=DataType.TEXT,
+                description="Text chunk"
+            ),
+            Property(
+                name="chunk_number",
+                data_type=DataType.INT,
+                description="Chunk number - 1 index"
+            ),
+        ]
+
+    def _class_dataloader(self):
+        fpaths = self.article_dir.glob("*.txt")
+        for fpath in fpaths:
+            with fpath.open('r') as f:
+                article_title = f.name.split("/")[-1][:-4]
+                article_body = f.read()
+
+            chunks = chunk_string(article_body)
+
+            for i, chunk in enumerate(chunks):
+
+                data_obj = {
+                    "title": article_title,
+                    "chunk": chunk,
+                    "chunk_number": i+1
+                }
+
+                yield data_obj, None
+
 
 class JeopardyQuestions1k:
     data_fpath = os.path.join(basedir, "data", "jeopardy_1k.json")
@@ -112,7 +205,7 @@ class JeopardyQuestions1k:
     category_collection = "JeopardyCategory"
     xref_prop_name = "hasCategory"
 
-    def add_to_schema(self, client: WeaviateClient) -> Collection:
+    def add_to_schema(self, client: WeaviateClient) -> Tuple[Collection, Collection]:
         """
         For each class in the dataset, add its definition to the Weaviate instance.
         """
@@ -258,3 +351,14 @@ class JeopardyQuestions1k:
         _ = self.add_to_schema(client)
         _ = self.upload_objects(client, batch_size=batch_size)
         return True
+
+    def get_sample(self) -> Tuple[Dict, Dict]:
+        dl = self._class_pair_dataloader()
+        (question_obj, _), (category_obj, _) = next(dl)
+        return question_obj, category_obj
+
+
+class JeopardyQuestions10k(JeopardyQuestions1k):
+    data_fpath = os.path.join(basedir, "data", "jeopardy_10k.json")
+    arr_fpath = os.path.join(basedir, "data", "jeopardy_10k.json.npy")
+    category_vec_fpath = os.path.join(basedir, "data", "jeopardy_10k_categories.csv")

@@ -40,13 +40,14 @@ dataset.upload_dataset(client)  # Pass the Weaviate client instance
 
 ### Built-in methods
 - `.upload_dataset(client)` - add defined classes to schema, adds objects
-- `.get_sample()`: See a sample data object
+- `.get_sample()` - yields sample data object(s)
 
 ## Available classes
 
-- WineReviews (50 wine reviews)
-- JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
-- JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
+- Wiki100 (Top 100 Wikipedia articles) (`WikiChunk` collection)
+- WineReviews (50 wine reviews) (`WineReview` collection)
+- JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`) (`JeopardyQuestion` and `JeopardyCategory` collections)
+- JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`) (`JeopardyQuestion` and `JeopardyCategory` collections)
 
 ## Available classes - V3 collection 
 

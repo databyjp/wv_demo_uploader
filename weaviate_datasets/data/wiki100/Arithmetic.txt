@@ -1,0 +1,1687 @@
+*: Definition, etymology, and related fields - Arithmetic is the fundamental branch of mathematics that studies numbers and their operations. In particular, it deals with numerical calculations using the arithmetic operations of addition, subtraction, multiplication, and division. In a wider sense, it also includes  exponentiation, extraction of roots, and logarithm. The term "arithmetic" has its root in the Latin term "arithmetica" which derives from the Ancient Greek words ἀριθμός (arithmos), meaning "number", and ἀριθμητική τέχνη (arithmetike tekhne), meaning "the art of counting".There are disagreements about its precise definition. According to a narrow characterization, arithmetic deals only with natural numbers. However, the more common view is to include operations on integers, rational numbers, real numbers, and sometimes also complex numbers in its scope. Some definitions restrict arithmetic to the field of numerical calculations. When understood in a wider sense, it also includes the study of how the concept of numbers developed, the analysis of properties of and relations between numbers, and the examination of the axiomatic structure of arithmetic operations.Arithmetic is closely related to number theory and some authors use the terms as synonyms. However, in a more specific sense, number theory is restricted to the study of integers and focuses on their properties and relationships such as divisibility, factorization, and primality. Traditionally, it is known as higher arithmetic.Arithmetic is intimately connected to many branches of mathematics that depend on numerical operations. Algebra relies on arithmetic principles to solve equations using variables. These principles also play a key role in calculus in its attempt to determine rates of change and areas under curves. Geometry uses arithmetic operations to measure the properties of shapes while statistics utilizes them to analyze numerical data.
+*: Numbers - Numbers are mathematical objects used to count quantities and measure magnitudes. They are fundamental elements in arithmetic since all arithmetic operations are performed on numbers. There are different kinds of numbers and different numeral systems to represent them.
+**: Kinds - The main kinds of numbers employed in arithmetic are natural numbers, whole numbers, integers, rational numbers, and real numbers. The natural numbers are whole numbers that start from 1 and go to infinity. They exclude 0 and negative numbers. They are also known as counting numbers and can be expressed as {1, 2, 3, 4, ...}. The symbol of the natural numbers is 
+  
+    
+      
+        
+          N
+        
+      
+    
+    {\displaystyle \mathbb {N} }
+  . The whole numbers are identical to the natural numbers with the only difference being that they include 0. They can be represented as {0, 1, 2, 3, 4, ...} and have the symbol 
+  
+    
+      
+        
+          
+            N
+          
+          
+            0
+          
+        
+      
+    
+    {\displaystyle \mathbb {N} _{0}}
+  . Some mathematicians do not draw the distinction between the natural and the whole numbers by including 0 in the set of natural numbers. The set of integers encompasses both positive and negative whole numbers. It has the symbol 
+  
+    
+      
+        
+          Z
+        
+      
+    
+    {\displaystyle \mathbb {Z} }
+   and can be expressed as {..., -2, -1, 0, 1, 2, ...}.A number is rational if it can be represented as the ratio of two integers. For instance, the rational number 
+  
+    
+      
+        
+          
+            
+              1
+              2
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {1}{2}}}
+   is formed by dividing the integer 1, called the numerator, by the integer 2, called the denominator. Other examples are 
+  
+    
+      
+        
+          
+            
+              3
+              4
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {3}{4}}}
+   and 
+  
+    
+      
+        
+          
+            
+              281
+              3
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {281}{3}}}
+  . The set of rational numbers includes all integers, which are fractions with a denominator of 1. The symbol of the rational numbers is 
+  
+    
+      
+        
+          Q
+        
+      
+    
+    {\displaystyle \mathbb {Q} }
+  . Decimal fractions like 0.3 and 25.12 are a special type of rational numbers since their denominator is a power of 10. For instance, 0.3 is equal to 
+  
+    
+      
+        
+          
+            
+              3
+              10
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {3}{10}}}
+  , and 25.12 is equal to 
+  
+    
+      
+        
+          
+            
+              2512
+              100
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {2512}{100}}}
+  . Every rational number corresponds to a finite or a repeating decimal.
+Irrational numbers are numbers that cannot be expressed through the ratio of two integers. Examples are many square roots, such as 
+  
+    
+      
+        
+          
+            2
+          
+        
+      
+    
+    {\displaystyle {\sqrt {2}}}
+  , and numbers like π and e (Euler's number). The decimal representation of an irrational number is infinite without repeating decimals. The set of rational numbers together with the set of irrational numbers makes up the set of real numbers. The symbol of the real numbers is 
+  
+    
+      
+        
+          R
+        
+      
+    
+    {\displaystyle \mathbb {R} }
+  . Even wider classes of numbers include complex numbers and quaternions.Based on how numbers are used, they can be distinguished into cardinal and ordinal numbers. Cardinal numbers, like one, two, and three, are numbers that express the quantity of objects. They answer the question "how many?". Ordinal numbers, such as first, second, and third, indicate order or placement in a series. They answer the question "what position?".
+**: Numeral systems - A numeral is a symbol to represent a number and numeral systems are representational frameworks. They usually have a limited amount of basic numerals, which directly refer to certain numbers. The system governs how these basic numerals may be combined to express any number. Numeral systems are either positional or non-positional. All early numeral systems were non-positional. For non-positional numeral systems, the value of a digit does not depend on its position in the numeral.
+
+The simplest non-positional system is the unary numeral system. It relies on one symbol for the number 1. All higher numbers are written by repeating this symbol. For example, the number 7 can be represented by repeating the symbol for 1 seven times. This system makes it cumbersome to write large numbers, which is why many non-positional systems include additional symbols to directly represent larger numbers. Variations of the unary numeral systems are employed in tally sticks using dents and in tally marks.
+Egyptian hieroglyphics had a more complex non-positional numeral system. They have additional symbols for numbers like 10, 100, 1000, and 10,000. These symbols can be combined into a sum to more conveniently express larger numbers. For instance, the numeral for 10,405 uses one time the symbol for 10,000, four times the symbol for 100, and five times the symbol for 1. A similar well-known framework is the Roman numeral system. It has the symbols I, V, X, L, C, D, M as its basic numerals to represent the numbers 1, 5, 10, 50, 100, 500, and 1000.A numeral system is positional if the position of a basic numeral in a compound expression determines its value. Positional numeral systems have a radix that acts as a multiplicand of the different positions. For each subsequent position, the radix is raised to a higher power. In the common decimal system, also called the Hindu–Arabic numeral system, the radix is 10. This means that the first digit is multiplied by 
+  
+    
+      
+        
+          10
+          
+            0
+          
+        
+      
+    
+    {\displaystyle 10^{0}}
+  , the next digit is multiplied by 
+  
+    
+      
+        
+          10
+          
+            1
+          
+        
+      
+    
+    {\displaystyle 10^{1}}
+  , and so on. For example, the decimal numeral 532 stands for 
+  
+    
+      
+        5
+        ⋅
+        
+          10
+          
+            2
+          
+        
+        +
+        3
+        ⋅
+        
+          10
+          
+            1
+          
+        
+        +
+        2
+        ⋅
+        
+          10
+          
+            0
+          
+        
+      
+    
+    {\displaystyle 5\cdot 10^{2}+3\cdot 10^{1}+2\cdot 10^{0}}
+  . Because of the effect of the digits' positions, the numeral 532 differs from the numerals 325 and 253 even though they have the same digits.Another positional numeral system used extensively in computer arithmetic is the binary system, which has a radix of 2. This means that the first digit is multiplied by 
+  
+    
+      
+        
+          2
+          
+            0
+          
+        
+      
+    
+    {\displaystyle 2^{0}}
+  , the next digit by 
+  
+    
+      
+        
+          2
+          
+            1
+          
+        
+      
+    
+    {\displaystyle 2^{1}}
+  , and so on. For example, the number 13 is written as 1101 in the binary notation, which stands for 
+  
+    
+      
+        1
+        ⋅
+        
+          2
+          
+            3
+          
+        
+        +
+        1
+        ⋅
+        
+          2
+          
+            2
+          
+        
+        +
+        0
+        ⋅
+        
+          2
+          
+            1
+          
+        
+        +
+        1
+        ⋅
+        
+          2
+          
+            0
+          
+        
+      
+    
+    {\displaystyle 1\cdot 2^{3}+1\cdot 2^{2}+0\cdot 2^{1}+1\cdot 2^{0}}
+  . In computing, each digit in the binary notation corresponds to one bit. The earliest positional system was developed by ancient Babylonians and had a radix of 60.
+*: Arithmetic operations - Arithmetic operations are ways of combining, transforming, or manipulating numbers. They are functions that have numbers both as input and output. The most important operations in arithmetic are addition, subtraction, multiplication, and division. Further operations include exponentiation, extraction of roots, and logarithm. If these operations are performed on variables rather than numbers, they are sometimes referred to as algebraic operations.Two important concepts in relation to arithmetic operations are identity elements and inverse elements. The identity element or neutral element of an operation does not cause any change if it is applied to another element. For example, the identity element of addition is 0 since any sum of a number and 0 results in the same number. The inverse element is the element that results in the identity element when combined with another element. For instance, the additive inverse of the number 6 is -6 since their sum is 0.There are not only inverse elements but also inverse operations. In an informal sense, one operation is the inverse of another operation if it undoes the first operation. For example, subtraction is the inverse of addition since a number returns to its original value if a second number is first added and subsequently subtracted, as in 
+  
+    
+      
+        13
+        +
+        4
+        −
+        4
+        =
+        13
+      
+    
+    {\displaystyle 13+4-4=13}
+  . Defined more formally, the operation "
+  
+    
+      
+        ⋆
+      
+    
+    {\displaystyle \star }
+  " is an inverse of the operation "
+  
+    
+      
+        ∘
+      
+    
+    {\displaystyle \circ }
+  " if it fulfills the following condition: 
+  
+    
+      
+        t
+        ⋆
+        s
+        =
+        r
+      
+    
+    {\displaystyle t\star s=r}
+   if and only if 
+  
+    
+      
+        r
+        ∘
+        s
+        =
+        t
+      
+    
+    {\displaystyle r\circ s=t}
+  .Commutativity and associativity are laws governing the order in which some arithmetic operations can be carried out. An operation is commutative if the order of the arguments can be changed without affecting the results. This is the case for addition, for instance, 
+  
+    
+      
+        7
+        +
+        9
+      
+    
+    {\displaystyle 7+9}
+   is the same as 
+  
+    
+      
+        9
+        +
+        7
+      
+    
+    {\displaystyle 9+7}
+  . Associativity is a rule that affects the order in which a series of operations can be carried out. An operation is associative if, in a series of two operations, it does not matter which operation is carried out first. This is the case for multiplication, for example, since 
+  
+    
+      
+        (
+        5
+        ×
+        4
+        )
+        ×
+        2
+      
+    
+    {\displaystyle (5\times 4)\times 2}
+   is the same as 
+  
+    
+      
+        5
+        ×
+        (
+        4
+        ×
+        2
+        )
+      
+    
+    {\displaystyle 5\times (4\times 2)}
+  .
+**: Addition and subtraction - Addition is an arithmetic operation in which two numbers, called the addends, are combined into a single number, called the sum. The symbol of addition is 
+  
+    
+      
+        +
+      
+    
+    {\displaystyle +}
+  . Examples are 
+  
+    
+      
+        2
+        +
+        2
+        =
+        4
+      
+    
+    {\displaystyle 2+2=4}
+   and 
+  
+    
+      
+        6.3
+        +
+        1.26
+        =
+        7.56
+      
+    
+    {\displaystyle 6.3+1.26=7.56}
+  . The term summation is used if several additions are performed in a row. Counting is a type of repeated addition in which the number 1 is continuously added.Subtraction is the inverse of addition. In it, one number, known as the subtrahend, is taken away from another, known as the minuend. The result of this operation is called the difference. The symbol of subtraction is 
+  
+    
+      
+        −
+      
+    
+    {\displaystyle -}
+  . Examples are 
+  
+    
+      
+        14
+        −
+        8
+        =
+        6
+      
+    
+    {\displaystyle 14-8=6}
+   and 
+  
+    
+      
+        45
+        −
+        1.7
+        =
+        43.3
+      
+    
+    {\displaystyle 45-1.7=43.3}
+  . Subtraction is often treated as a special case of addition: instead of subtracting a positive number, it is also possible to add a negative number. For instance 
+  
+    
+      
+        14
+        −
+        8
+        =
+        14
+        +
+        (
+        −
+        8
+        )
+      
+    
+    {\displaystyle 14-8=14+(-8)}
+  . This helps to simplify mathematical computations by reducing the number of basic arithmetic operations needed to perform calculations.The additive identity element is 0 and the additive inverse of a number is the negative of that number. For instance, 
+  
+    
+      
+        13
+        +
+        0
+        =
+        13
+      
+    
+    {\displaystyle 13+0=13}
+   and 
+  
+    
+      
+        13
+        +
+        (
+        −
+        13
+        )
+        =
+        0
+      
+    
+    {\displaystyle 13+(-13)=0}
+  . Addition is both commutative and associative.
+**: Multiplication and division - Multiplication  is an arithmetic operation in which two numbers, called the multiplier and the multiplicand, are combined into a single number called the product. The symbols of multiplication are 
+  
+    
+      
+        ×
+      
+    
+    {\displaystyle \times }
+  , 
+  
+    
+      
+        ⋅
+      
+    
+    {\displaystyle \cdot }
+  , and *. Examples are 
+  
+    
+      
+        2
+        ×
+        3
+        =
+        6
+      
+    
+    {\displaystyle 2\times 3=6}
+   and 
+  
+    
+      
+        0.3
+        ⋅
+        5
+        =
+        1.5
+      
+    
+    {\displaystyle 0.3\cdot 5=1.5}
+  . If the multiplicand is a natural number then multiplication is the same as repeated addition, as in 
+  
+    
+      
+        2
+        ×
+        3
+        =
+        2
+        +
+        2
+        +
+        2
+      
+    
+    {\displaystyle 2\times 3=2+2+2}
+  .Division is the inverse of multiplication. In it, one number, known as the dividend, is split into several equal parts by another number, known as the divisor. The result of this operation is called the quotient. The symbols of division are 
+  
+    
+      
+        ÷
+      
+    
+    {\displaystyle \div }
+   and 
+  
+    
+      
+        
+          /
+        
+      
+    
+    {\displaystyle /}
+  . Examples are 
+  
+    
+      
+        48
+        ÷
+        8
+        =
+        6
+      
+    
+    {\displaystyle 48\div 8=6}
+   and 
+  
+    
+      
+        29.4
+        
+          /
+        
+        1.4
+        =
+        21
+      
+    
+    {\displaystyle 29.4/1.4=21}
+  . Division is often treated as a special case of multiplication: instead of dividing by a number, it is also possible to multiply by its reciprocal. The reciprocal of a number is 1 divided by that number. For instance, 
+  
+    
+      
+        48
+        ÷
+        8
+        =
+        48
+        ×
+        
+          
+            
+              1
+              8
+            
+          
+        
+      
+    
+    {\displaystyle 48\div 8=48\times {\tfrac {1}{8}}}
+  .The multiplicative identity element is 1 and the multiplicative inverse of a number is the reciprocal of that number. For example, 
+  
+    
+      
+        13
+        ×
+        1
+        =
+        13
+      
+    
+    {\displaystyle 13\times 1=13}
+   and 
+  
+    
+      
+        13
+        ×
+        
+          
+            
+              1
+              13
+            
+          
+        
+        =
+        1
+      
+    
+    {\displaystyle 13\times {\tfrac {1}{13}}=1}
+  . Multiplication is both commutative and associative.
+**: Exponentiation and logarithm - Exponentiation is an arithmetic operation in which a number, known as the base, is raised to the power of another number, known as the exponent. The result of this operation is called the power. Exponentiation is sometimes expressed using the symbol ^ but the more common way is to write the exponent in superscript right after the base. Examples are 
+  
+    
+      
+        
+          2
+          
+            4
+          
+        
+        =
+        16
+      
+    
+    {\displaystyle 2^{4}=16}
+   and 
+  
+    
+      
+        3
+      
+    
+    {\displaystyle 3}
+  ^
+  
+    
+      
+        3
+        =
+        27
+      
+    
+    {\displaystyle 3=27}
+  . If the exponent is a natural number then exponentiation is the same as repeated multiplication, as in 
+  
+    
+      
+        
+          2
+          
+            4
+          
+        
+        =
+        2
+        ×
+        2
+        ×
+        2
+        ×
+        2
+      
+    
+    {\displaystyle 2^{4}=2\times 2\times 2\times 2}
+  .Roots are a special type of exponentiation using a fractional exponent. For example, the square root of a number is the same as raising the number to the power of 
+  
+    
+      
+        
+          
+            
+              1
+              2
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {1}{2}}}
+   and the cube root of a number is the same as raising the number to the power of 
+  
+    
+      
+        
+          
+            
+              1
+              3
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {1}{3}}}
+  . Examples are 
+  
+    
+      
+        
+          
+            4
+          
+        
+        =
+        
+          4
+          
+            
+              
+                1
+                2
+              
+            
+          
+        
+        =
+        2
+      
+    
+    {\displaystyle {\sqrt {4}}=4^{\tfrac {1}{2}}=2}
+   and 
+  
+    
+      
+        
+          
+            27
+            
+              3
+            
+          
+        
+        =
+        
+          27
+          
+            
+              
+                1
+                3
+              
+            
+          
+        
+        =
+        3
+      
+    
+    {\displaystyle {\sqrt[{3}]{27}}=27^{\tfrac {1}{3}}=3}
+  .Logarithm is the inverse of exponentiation. The logarithm of a number 
+  
+    
+      
+        x
+      
+    
+    {\displaystyle x}
+   to the base 
+  
+    
+      
+        b
+      
+    
+    {\displaystyle b}
+   is the exponent to which 
+  
+    
+      
+        b
+      
+    
+    {\displaystyle b}
+   must be raised to produce 
+  
+    
+      
+        x
+      
+    
+    {\displaystyle x}
+  . For instance, since 
+  
+    
+      
+        1000
+        =
+        
+          10
+          
+            3
+          
+        
+      
+    
+    {\displaystyle 1000=10^{3}}
+  , the logarithm base 10 of 1000 is 3. The logarithm of 
+  
+    
+      
+        x
+      
+    
+    {\displaystyle x}
+   to base 
+  
+    
+      
+        b
+      
+    
+    {\displaystyle b}
+   is denoted as 
+  
+    
+      
+        
+          log
+          
+            b
+          
+        
+        ⁡
+        (
+        x
+        )
+      
+    
+    {\displaystyle \log _{b}(x)}
+  , or without parentheses, 
+  
+    
+      
+        
+          log
+          
+            b
+          
+        
+        ⁡
+        x
+      
+    
+    {\displaystyle \log _{b}x}
+  , or even without the explicit base, 
+  
+    
+      
+        log
+        ⁡
+        x
+      
+    
+    {\displaystyle \log x}
+  , when the base can be understood from context. So, the previous example can be written 
+  
+    
+      
+        
+          log
+          
+            10
+          
+        
+        ⁡
+        1000
+        =
+        3
+      
+    
+    {\displaystyle \log _{10}1000=3}
+  .Exponentiation and logarithm do not have general identity elements and inverse elements like addition and multiplication. The neutral element of exponentiation in relation to the exponent is 1, as in 
+  
+    
+      
+        
+          14
+          
+            1
+          
+        
+        =
+        14
+      
+    
+    {\displaystyle 14^{1}=14}
+  . However, exponentiation does not have a general identity element since 1 is not the neutral element for the base. Exponentiation and logarithm are neither commutative nor associative.
+*: Types of arithmetic - Different types of arithmetic systems are discussed in the academic literature. They differ from each other based on what type of number they operate on, what numeral system they use to represent them, and whether they operate on mathematical objects other than numbers.
+**: Integer arithmetic - Integer arithmetic is the branch of arithmetic that deals with the manipulation of positive and negative whole numbers. Simple one-digit operations can be performed by following or memorizing a table that presents the results of all possible combinations, like an addition table or a multiplication table. Other common methods are verbal counting and finger-counting.
+
+For operations on numbers with more than one digit, different techniques can be employed to calculate the result by using several one-digit operations in a row. For example, in the method addition with carries, the two numbers are written one above the other. Starting from the rightmost digit, each pair of digits is added together. The rightmost digit of the sum is written below them. If the sum is a two-digit number then the leftmost digit, called the "carry", is added to the next pair of digits to the left. This process is repeated until all digits have been added. Other methods used for integer additions are the number line method, the partial sum method, and the compensation method. A similar technique is utilized for subtraction: it also starts with the rightmost digit and uses a "borrow" or a negative carry for the column on the left if the result of the one-digit subtraction is negative.
+A basic technique of integer multiplication employs repeated addition. For example, the product of 3 × 4 can be calculated as 3 + 3 + 3 + 3. A common technique for multiplication with larger numbers is called long multiplication. This method starts by writing the multiplier above the multiplicand. The calculation begins by multiplying the multiplier only with the rightmost digit of the multiplicand and writing the result below, starting in the rightmost column. The same is done for each digit of the multiplicand and the result in each case is shifted one position to the left. As a final step, all the individual products are added to arrive at the total product of the two multi-digit numbers. Other techniques used for multiplication are the grid method and the lattice method. Computer science is interested in multiplication algorithms with a low computational complexity to be able to efficiently multiply very large integers, such as the Karatsuba algorithm, the Schönhage-Strassen algorithm, and the Toom-Cook algorithm. A common technique used for division is called long division. Other methods include short division and chunking.Integer arithmetic is not closed under division. This means that when dividing one integer by another integer, the result is not always an integer. For instance, 7 divided by 2 is not a whole number but 3.5. One way to ensure that the result is an integer is to round the result to a whole number. However, this method leads to inaccuracies as the original value is altered. Another method is to perform the division only partially and retain the remainder. For example, 7 divided by 2 is 3 with a remainder of 1. These difficulties are avoided by rational arithmetic, which allows for the exact representation of fractions.A simple method to calculate exponentiation is by repeated multiplication. For instance, the exponentiation of 34 can be calculated as 3 × 3 × 3 × 3. A more efficient technique used for large exponents is exponentiation by squaring. It breaks down the calculation into a number of squaring operations. For example, the exponentiation 365 can be written as (((((32)2)2)2)2)2 × 3. By taking advantage of repeated squaring operations, only 7 individual operations are needed rather than the 64 operations required for regular repeated multiplication. Methods to calculate logarithms include the Taylor series and continued fractions. Integer arithmetic is not closed under logarithm and under exponentiation with negative exponents, meaning that the result of these operations is not always an integer.
+***: Number theory - Number theory studies the structure and properties of integers as well as the relations and laws between them. Some of the main branches of modern number theory include elementary number theory, analytic number theory, algebraic number theory, and geometric number theory. Elementary number theory studies aspects of integers that can be investigated using elementary methods. In this regard, it excludes the use of methods found in analysis and calculus. Its topics include divisibility, factorization, and primality. Analytic number theory, by contrast, relies on techniques from analysis and calculus. It examines problems like how prime numbers are distributed and the claim that every even number is a sum of two prime numbers. Algebraic number theory employs algebraic structures to analyze the properties of and relations between numbers. Examples are the use of fields and rings, as in algebraic number fields like the ring of integers. Geometric number theory uses concepts from geometry to study numbers. For instance, it investigates how lattice points with integer coordinates behave in a plane. Further branches of number theory are probabilistic number theory, combinatorial number theory, computational number theory, and applied number theory.Influential theorems in number theory include the fundamental theorem of arithmetic, Euclid's theorem, and Fermat's last theorem. According to the fundamental theorem of arithmetic, every integer greater than 1 is either a prime number or can be represented as a unique product of prime numbers. For example, the number 18 is not a prime number and can be represented as 
+  
+    
+      
+        2
+        ×
+        3
+        ×
+        3
+      
+    
+    {\displaystyle 2\times 3\times 3}
+  , all of which are prime numbers. The number 19, by contrast, is a prime number that has no other prime factorization. Euclid's theorem states that there are infinitely many prime numbers. Fermat's last theorem is the statement that no positive integer values can be found for 
+  
+    
+      
+        a
+      
+    
+    {\displaystyle a}
+  , 
+  
+    
+      
+        b
+      
+    
+    {\displaystyle b}
+  , and 
+  
+    
+      
+        c
+      
+    
+    {\displaystyle c}
+  , to solve the equation 
+  
+    
+      
+        
+          a
+          
+            n
+          
+        
+        +
+        
+          b
+          
+            n
+          
+        
+        =
+        
+          c
+          
+            n
+          
+        
+      
+    
+    {\displaystyle a^{n}+b^{n}=c^{n}}
+   if 
+  
+    
+      
+        n
+      
+    
+    {\displaystyle n}
+   is greater than 
+  
+    
+      
+        2
+      
+    
+    {\displaystyle 2}
+  .
+**: Rational arithmetic - Rational arithmetic is the branch of arithmetic that deals with the manipulation of numbers that can be expressed as a ratio of two integers. Most arithmetic operations on rational numbers can be calculated by performing a series of integer arithmetic operations on the numerators and the denominators of the involved numbers. If two rational numbers have the same denominator then they can be added by adding their numerators and keeping the common denominator. For example, 
+  
+    
+      
+        
+          
+            
+              2
+              7
+            
+          
+        
+        +
+        
+          
+            
+              3
+              7
+            
+          
+        
+        =
+        
+          
+            
+              5
+              7
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {2}{7}}+{\tfrac {3}{7}}={\tfrac {5}{7}}}
+  . A similar procedure is used for subtraction. If the two numbers do not have the same denominator then they must be transformed to find a common denominator. This can be achieved by scaling the first number with the denominator of the second number while scaling the second number with the denominator of the first number. For instance, 
+  
+    
+      
+        
+          
+            
+              1
+              3
+            
+          
+        
+        +
+        
+          
+            
+              1
+              2
+            
+          
+        
+        =
+        
+          
+            
+              
+                1
+                ⋅
+                2
+              
+              
+                3
+                ⋅
+                2
+              
+            
+          
+        
+        +
+        
+          
+            
+              
+                1
+                ⋅
+                3
+              
+              
+                2
+                ⋅
+                3
+              
+            
+          
+        
+        =
+        
+          
+            
+              2
+              6
+            
+          
+        
+        +
+        
+          
+            
+              3
+              6
+            
+          
+        
+        =
+        
+          
+            
+              5
+              6
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {1}{3}}+{\tfrac {1}{2}}={\tfrac {1\cdot 2}{3\cdot 2}}+{\tfrac {1\cdot 3}{2\cdot 3}}={\tfrac {2}{6}}+{\tfrac {3}{6}}={\tfrac {5}{6}}}
+  .Two rational numbers are multiplied by multiplying their numerators and their denominators respectively, as in 
+  
+    
+      
+        
+          
+            
+              2
+              3
+            
+          
+        
+        ⋅
+        
+          
+            
+              2
+              5
+            
+          
+        
+        =
+        
+          
+            
+              
+                2
+                ⋅
+                2
+              
+              
+                3
+                ⋅
+                5
+              
+            
+          
+        
+        =
+        
+          
+            
+              4
+              15
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {2}{3}}\cdot {\tfrac {2}{5}}={\tfrac {2\cdot 2}{3\cdot 5}}={\tfrac {4}{15}}}
+  . Dividing one rational number by another can be achieved by multiplying the first number with the reciprocal of the second number. This means that the numerator and the denominator of the second number change position. For example, 
+  
+    
+      
+        
+          
+            
+              3
+              5
+            
+          
+        
+        :
+        
+          
+            
+              2
+              7
+            
+          
+        
+        =
+        
+          
+            
+              3
+              5
+            
+          
+        
+        ⋅
+        
+          
+            
+              7
+              2
+            
+          
+        
+        =
+        
+          
+            
+              21
+              10
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {3}{5}}:{\tfrac {2}{7}}={\tfrac {3}{5}}\cdot {\tfrac {7}{2}}={\tfrac {21}{10}}}
+  . Unlike integer arithmetic, rational arithmetic is closed under division as long as the divisor is not 0.Both integer arithmetic and rational arithmetic are not closed under exponentiation and logarithm. One way to calculate exponentiation with a fractional exponent is to perform two separate calculations: one exponentiation using the numerator of the exponent followed by drawing the nth root of the result based on the denominator of the exponent. For example, 
+  
+    
+      
+        
+          5
+          
+            
+              
+                2
+                3
+              
+            
+          
+        
+        =
+        
+          
+            
+              5
+              
+                2
+              
+            
+            
+              3
+            
+          
+        
+      
+    
+    {\displaystyle 5^{\tfrac {2}{3}}={\sqrt[{3}]{5^{2}}}}
+  . The first operation can be completed using methods like repeated multiplication or exponentiation by squaring. One way to get an approximate result for the second operation is to employ Newton's method, which uses a series of steps to gradually refine an initial guess until it reaches the desired level of accuracy. The Taylor series or the continued fraction method can be utilized to calculate logarithms.The decimal fraction notation is a special way of representing rational numbers whose denominator is a power of 10. For instance, the rational numbers 
+  
+    
+      
+        
+          
+            
+              1
+              10
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {1}{10}}}
+  , 
+  
+    
+      
+        
+          
+            
+              371
+              100
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {371}{100}}}
+  , and 
+  
+    
+      
+        
+          
+            
+              44
+              10000
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {44}{10000}}}
+   are written as 0.1, 3.71, and 0.0044 in the decimal fraction notation. Modified versions of integer calculation methods like addition with carry and long multiplication can be applied to calculations with decimal fractions. Not all rational numbers have a finite representation in the decimal notation. For example, the rational number 
+  
+    
+      
+        
+          
+            
+              1
+              3
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {1}{3}}}
+   corresponds to 0.333... with an infinite number of 3s. The shortened notation for this type of repeating decimal is 0.3. Every repeating decimal expresses a rational number.
+**: Real arithmetic - Real arithmetic is the branch of arithmetic that deals with the manipulation of both rational and irrational numbers. Irrational numbers are numbers that cannot be expressed through fractions or repeated decimals, like the root of 2 and π. Unlike rational arithmetic, real arithmetic is closed under exponentiation as long as it uses a positive number as its base. The same is true for the logarithm of positive real numbers as long as the logarithm base is positive and not 1.Irrational numbers involve an infinite non-repeating series of decimal digits. Because of this, there is often no simple and accurate way to express the results of arithmetic operations like 
+  
+    
+      
+        
+          
+            2
+          
+        
+        +
+        π
+      
+    
+    {\displaystyle {\sqrt {2}}+\pi }
+   or 
+  
+    
+      
+        e
+        ⋅
+        
+          
+            3
+          
+        
+      
+    
+    {\displaystyle e\cdot {\sqrt {3}}}
+  . In cases where absolute precision is not required, the problem of calculating arithmetic operations on real numbers is usually addressed by truncation or rounding. For truncation, a certain number of significant digits to the left are kept and additional digits to the right of the last significant digit are removed. For example, the number π has an infinite number of digits starting with 3.14159... . If this number is truncated to 4 significant digits, the result is 3.141. Rounding is a similar process in which the last significant digit is increased by one if the next digit is 5 or greater. If the next digit is less than 5, the last digit remains the same. For instance, if the number π is rounded to 4 significant digits, the result is 3.142 because the following digit is a 5. These methods are essential to allow computers to efficiently perform calculations on real numbers.Very large and very small real numbers are often expressed using normalized scientific notation. In it, numbers are represented using a so-called significand multiplied by a power of 10. The significand is a digit followed by a decimal point and a series of digits. For example, the normalized scientific notation of the number 8276000 is 
+  
+    
+      
+        8.276
+        ×
+        
+          10
+          
+            6
+          
+        
+      
+    
+    {\displaystyle 8.276\times 10^{6}}
+   and the number 0.00735 has the normalized scientific notation of 
+  
+    
+      
+        7.35
+        ×
+        
+          10
+          
+            −
+            3
+          
+        
+      
+    
+    {\displaystyle 7.35\times 10^{-3}}
+  .A common method employed by computers to approximate real arithmetic is called floating-point arithmetic. It represents real numbers similar to the scientific notation through three numbers: a significand, a base, and an exponent. The precision of the significand is limited by the number of bits allocated to represent it. If an arithmetic operation results in a number that requires more bits than are available, the computer rounds the result to the closest representable number. This leads to rounding errors. A consequence of this behavior is that certain laws of arithmetic are violated by floating-point arithmetic. For example, floating-point addition is not associative since the rounding errors introduced can depend on the order of the additions. This means that the result of 
+  
+    
+      
+        (
+        a
+        +
+        b
+        )
+        +
+        c
+      
+    
+    {\displaystyle (a+b)+c}
+   is sometimes different from the result of 
+  
+    
+      
+        a
+        +
+        (
+        b
+        +
+        c
+        )
+      
+    
+    {\displaystyle a+(b+c)}
+  . The most common technical standard used for floating-point arithmetic is called IEEE 754. Among other things, it determines how numbers are represented, how arithmetic operations and rounding are performed, and how errors and exceptions are handled. In cases where computation speed is not a limiting factor, it is possible to use arbitrary-precision arithmetic, for which the precision of calculations is only restricted by the computer's memory.
+**: Others - There are many other types of arithmetic. Modular arithmetic operates on a finite set of numbers. If an operation would result in a number outside this finite set then the number is adjusted back into the set, similar to how the hands of clocks start at the beginning again after having completed one cycle. The number at which this adjustment happens is called the modulus. For example, a regular clock has a modulus of 12. In the case of adding 4 to 9, this means that the result is not 13 but 1. The same principle applies also to other operations, such as subtraction, multiplication, and division.Some forms of arithmetic deal with operations performed on mathematical objects other than numbers. Interval arithmetic describes operations on intervals. Intervals can be used to represent a range of values if one does not know the precise magnitude, for example, because of measurement errors. Interval arithmetic includes operations like addition and multiplication on intervals, as in 
+  
+    
+      
+        [
+        1
+        ,
+        2
+        ]
+        +
+        [
+        3
+        ,
+        4
+        ]
+        =
+        [
+        4
+        ,
+        6
+        ]
+      
+    
+    {\displaystyle [1,2]+[3,4]=[4,6]}
+   and 
+  
+    
+      
+        [
+        1
+        ,
+        2
+        ]
+        ×
+        [
+        3
+        ,
+        4
+        ]
+        =
+        [
+        3
+        ,
+        8
+        ]
+      
+    
+    {\displaystyle [1,2]\times [3,4]=[3,8]}
+  . It is closely related to affine arithmetic, which aims to give more precise results by performing calculations on affine forms rather than intervals. An affine form is a number together with error terms that describe how the number may deviate from the actual magnitude. Vector arithmetic and matrix arithmetic describe arithmetic operations on vectors and matrices, like vector addition and matrix multiplication.
+For mental arithmetic, the calculations are performed exclusively in the mind without external tools like pan and paper or electronic calculators. Instead, mental arithmetic makes use of visualization, memorization, and certain calculation techniques to solve arithmetic problems. One such technique is the compensation method. It consists in altering the numbers to make the calculation easier and then adjusting the result afterward. For example, instead of calculating 
+  
+    
+      
+        85
+        −
+        47
+      
+    
+    {\displaystyle 85-47}
+  , one calculates 
+  
+    
+      
+        85
+        −
+        50
+      
+    
+    {\displaystyle 85-50}
+   which is easier because it uses a round number. In the next step, one adds 
+  
+    
+      
+        3
+      
+    
+    {\displaystyle 3}
+   to the result to compensate for the earlier adjustment. Mental arithmetic is often taught in primary education to train the numerical abilities of the students.Arithmetic systems can be classified based on the numeral system they rely on. For instance, decimal arithmetic describes arithmetic operations in the decimal system. Other examples are binary arithmetic, octal arithmetic, and hexadecimal arithmetic.Compound unit arithmetic describes arithmetic operations performed on magnitudes with compound units. It involves additional operations to govern the transformation between single unit and compound unit quantities. For example, the operation of reduction is used to transform the compound quantity 1 h 90 min into the single unit quantity 150 min.Non-Diophantine arithmetics are arithmetic systems that violate traditional arithmetic intuitions and include equations like 
+  
+    
+      
+        1
+        +
+        1
+        =
+        1
+      
+    
+    {\displaystyle 1+1=1}
+   and 
+  
+    
+      
+        2
+        +
+        2
+        =
+        5
+      
+    
+    {\displaystyle 2+2=5}
+  . They can be employed to represent some real-world situations in modern physics and everyday life. For instance, the equation 
+  
+    
+      
+        1
+        +
+        1
+        =
+        1
+      
+    
+    {\displaystyle 1+1=1}
+   can be used to describe the observation that if one raindrop is added to another raindrop then they do not remain two separate entities but become one.
+*: Axiomatic foundations - Axiomatic foundations of arithmetic try to provide a small set of laws, so-called axioms, from which all fundamental properties of and operations on numbers can be derived. They constitute logically consistent and systematic frameworks that can be used to formulate mathematical proofs in a rigorous manner. Two well-known approaches are the Dedekind–Peano axioms and set-theoretic constructions.The Dedekind–Peano axioms provide an axiomatization of the arithmetic of natural numbers. Their basic principles were first formulated by Richard Dedekind and later refined by Giuseppe Peano. They rely only on a small number of primitive mathematical concepts, such as 0, natural number, and successor. The Peano axioms determine how these concepts are related to each other. All other arithmetic concepts can then be defined in terms of these primitive concepts.
+0 is a natural number.
+For every natural number, there is a successor, which is also a natural number.
+The successors of two different natural numbers are never identical.
+0 is not the successor of a natural number.
+If a set contains 0 and every successor then it contains every natural number.Numbers greater than 0 are expressed by repeated application of the successor function 
+  
+    
+      
+        s
+      
+    
+    {\displaystyle s}
+  . For example, 
+  
+    
+      
+        1
+      
+    
+    {\displaystyle 1}
+   is 
+  
+    
+      
+        s
+        (
+        0
+        )
+      
+    
+    {\displaystyle s(0)}
+   and 
+  
+    
+      
+        3
+      
+    
+    {\displaystyle 3}
+   is 
+  
+    
+      
+        s
+        (
+        s
+        (
+        s
+        (
+        0
+        )
+        )
+        )
+      
+    
+    {\displaystyle s(s(s(0)))}
+  . Arithmetic operations can be defined as mechanisms that affect how the successor function is applied. For instance, to add 
+  
+    
+      
+        2
+      
+    
+    {\displaystyle 2}
+   to any number is the same as applying the successor function two times to this number.Various axiomatizations of arithmetic rely on set theory. They cover natural numbers but can also be extended to integers, rational numbers, and real numbers. Each natural number is represented by a unique set. 0 is usually defined as the empty set 
+  
+    
+      
+        ∅
+      
+    
+    {\displaystyle \varnothing }
+  . Each subsequent number can be defined as the union of the previous number with the set containing the previous number. For example, 
+  
+    
+      
+        1
+        =
+        0
+        ∪
+        {
+        0
+        }
+        =
+        {
+        0
+        }
+      
+    
+    {\displaystyle 1=0\cup \{0\}=\{0\}}
+  , 
+  
+    
+      
+        2
+        =
+        1
+        ∪
+        {
+        1
+        }
+        =
+        {
+        0
+        ,
+        1
+        }
+      
+    
+    {\displaystyle 2=1\cup \{1\}=\{0,1\}}
+  , and 
+  
+    
+      
+        3
+        =
+        2
+        ∪
+        {
+        2
+        }
+        =
+        {
+        0
+        ,
+        1
+        ,
+        2
+        }
+      
+    
+    {\displaystyle 3=2\cup \{2\}=\{0,1,2\}}
+  . Integers can be defined as ordered pairs of natural numbers where the second number is subtracted from the first one. For instance, the pair (9, 0) represents the number 9 while the pair (0, 9) represents the number -9. Rational numbers are defined as pairs of integers where the first number represents the numerator and the second number represents the denominator. For example, the pair (3, 7) represents the rational number 
+  
+    
+      
+        
+          
+            
+              3
+              7
+            
+          
+        
+      
+    
+    {\displaystyle {\tfrac {3}{7}}}
+  . One way to construct the real numbers relies on the concept of Dedekind cuts. According to this approach, each real number is represented by a partition of all rational numbers into two sets, one for all numbers below the represented real number and the other for the rest. Arithmetic operations are defined as functions that perform various set-theoretic transformations on the sets representing the input numbers to arrive at the set representing the result.
+*: History - The earliest forms of arithmetic are sometimes traced back to counting and tally marks used to keep track of quantities. Some historians suggest that the Lebombo bone (dated about 43,000 years ago) and the Ishango bone (dated about 22,000 to 30,000 years ago) are the oldest arithmetic artifacts but this interpretation is disputed. However, a basic sense of numbers may predate these findings and might even have existed before the development of language.It was not until the emergence of ancient civilizations that a more complex and structured approach to arithmetic began to evolve, starting around 3000 BCE. This became necessary because of the increased need to keep track of stored items, manage land ownership, and arrange exchanges. All the major ancient civilizations developed non-positional numeral systems to facilitate the representation of numbers. They also had symbols for operations like addition and subtraction and were aware of fractions. Examples are Egyptian hieroglyphics as well as the numeral systems invented in Sumeria, China, and India. The first positional numeral system was developed by the Babylonians starting around 1800 BCE. This was a significant improvement over earlier numeral systems since it made the representation of large numbers and calculations on them more efficient. Abacuses have been utilized as hand-operated calculating tools since ancient times as efficient means for performing complex calculations.
+Early civilizations primarily used numbers for concrete practical purposes and lacked an abstract concept of number itself. This changed with the ancient Greek mathematicians, who began to explore the abstract nature of numbers rather than studying how they are applied to specific problems. Another novel feature was their use of proofs to establish mathematical truths and validate theories. A further contribution was their distinction of various classes of numbers, such as even numbers, odd numbers, and prime numbers. This included the discovery that numbers for certain geometrical lengths are irrational and therefore cannot be expressed as a fraction. The works of Thales of Miletus and Pythagoras in the 7th and 6th centuries BCE are often regarded as the inception of Greek mathematics. Diophantus was an influential figure in Greek arithmetic in the 3rd century BCE because of his numerous contributions to number theory and his exploration of the application of arithmetic operations to algebraic equations.The ancient Indians were the first to develop the concept of zero as a number to be used in calculations. The exact rules of its operation were written down by Brahmagupta in around 628 CE. The concept of zero or none existed long before, but it was not considered an object of arithmetic operations. Brahmagupta further provided a detailed discussion of calculations with negative numbers and their application to problems like credit and debt. The concept of negative numbers itself is significantly older and was first explored in Chinese mathematics in the first millennium BCE.Indian mathematicians also developed the positional decimal system used today, in particular the concept of a zero digit instead of empty/missing positions. For example, a detailed treatment of its operations was provided by Aryabhata around the turn of the 6th century CE. The Indian decimal system was further refined and expanded to non-integers during the Islamic Golden Age by Arab mathematicians such as Al-Khwarizmi. His work was influential in introducing the decimal numeral system to the Western world, which at that time relied on the Roman numeral system. There, it was popularized by mathematicians like Leonardo Fibonacci, who lived in the 12th and 13th centuries and also developed the Fibonacci sequence. During the Middle Ages and Renaissance, many popular textbooks were published to cover the practical calculations for commerce. The use of abacuses also became widespread in this period. In the 16th century, the mathematician Gerolamo Cardano conceived the concept of complex numbers as a way to solve cubic equations.
+The first mechanical calculators were developed in the 17th century and greatly facilitated complex mathematical calculations, such as Blaise Pascal's calculator and Gottfried Wilhelm Leibniz's stepped reckoner. The 17th century also saw the discovery of the logarithm by John Napier.In the 18th and 19th centuries, mathematicians such as Leonhard Euler and Carl Friedrich Gauss laid the foundations of modern number theory. Another development in this period concerned work on the formalization and foundations of arithmetic, such as Georg Cantor's set theory and the Dedekind–Peano axioms used as an axiomatization of natural-number arithmetic. Computers and electronic calculators were first developed in the 20th century. Their widespread use revolutionized both the accuracy and speed with which even complex arithmetic computations can be calculated.
+*: In various fields - 
+**: Education - Arithmetic education forms part of primary education. It is one of the first forms of mathematics education that children encounter. Elementary arithmetic aims to give students a basic sense of numbers and to familiarize them with fundamental numerical operations like addition, subtraction, multiplication, and division. It is usually introduced in relation to concrete scenarios, like counting beads, dividing the class into groups of children of the same size, and calculating change when buying items. Common tools in early arithmetic education are number lines, addition and multiplication tables, and counting blocks.Later stages focus on a more abstract understanding. They introduce the students to different types of numbers, such as negative numbers, fractions, real numbers, and complex numbers. They further cover more advanced numerical operations, like exponentiation, extraction of roots, and logarithm. They also show how arithmetic operations are employed in other branches of mathematics, such as their application to describe geometrical shapes and the use of variables in algebra. Another aspect is to teach the students the use of algorithms and calculators to solve complex arithmetic problems.
+**: Psychology - The psychology of arithmetic is interested in how humans and animals learn about numbers, represent them, and use them for calculations. It examines how mathematical problems are understood and solved and how arithmetic abilities are related to perception, memory, judgment, and decision making. For example, it investigates how collections of concrete items are first encountered in perception in subsequently associated with numbers. A further field of inquiry concerns the relation between numerical calculations and the use of language to form representations. Psychology also explores the biological origin of arithmetic as an inborn ability. This concerns pre-verbal and pre-symbolic cognitive processes implementing arithmetic-like operations required to successfully represent the world and perform tasks like spatial navigation.One of the concepts studied by psychology is numeracy, which is the capability to comprehend numerical concepts, apply them to concrete situations, and reason with them. It includes a fundamental number sense as well as being able to estimate and compare quantities. It further encompasses the abilities to symbolically represent numbers in numbering systems, interpret numerical data, and evaluate arithmetic calculations. Numeracy is a key skill in many academic fields. A lack of numeracy can inhibit academic success and lead to bad economic decisions in everyday life, for example, by misunderstanding mortgage plans and insurance policies.
+**: Philosophy - The philosophy of arithmetic studies the fundamental concepts and principles underlying numbers and arithmetic operations. It explores the nature and ontological status of numbers, the relation of arithmetic to language and logic, and how it is possible to acquire arithmetic knowledge.According to Platonism, numbers have mind-independent existence: they exist as abstract objects outside spacetime and without causal powers. This view is rejected by intuitionists, who claim that mathematical objects are mental constructions. Further theories are logicism, which holds that mathematical truths are reducible to logical truths, and formalism, which states that mathematical principles are rules of how symbols are manipulated without claiming that they correspond to entities outside the rule-governed activity.The traditionally dominant view in the epistemology of arithmetic is that arithmetic truths are knowable a priori. This means that they can be known by thinking alone without the need to rely on sensory experience. Some proponents of this view state that arithmetic knowledge is innate while others claim that there is some form of rational intuition through which mathematical truths can be apprehended. A more recent alternative view was suggested by naturalist philosophers like Willard Van Orman Quine, who argue that mathematical principles are high-level generalizations that are ultimately grounded in the sensory world as described by the empirical sciences.
+**: Others - Arithmetic is relevant to many fields. In daily life, it is required to calculate change when shopping, manage personal finances, and adjust a cooking recipe for a different number of servings. Businesses use arithmetic to calculate profits and losses and analyze market trends. In the field of engineering, it is used to measure quantities, calculate loads and forces, and design structures. Cryptography relies on arithmetic operations to protect sensitive information by encrypting data and messages.Arithmetic operations lie at the foundation of many branches of mathematics, like algebra, calculus, and statistics. Through them, the influence of arithmetic extends to most sciences such as physics, computer science, and economics. These operations are used in calculations, problem-solving, data analysis, and algorithms, making them integral to scientific research, technological development, and economic modeling.
+*: See also - Algorism
+Finite field arithmetic
+Outline of arithmetic
+Plant arithmetic
+*: References - 
+**: Notes - 
+**: Citations - 
+**: Sources - 
+*: External links - 
+MathWorld article about arithmetic
+The New Student's Reference Work/Arithmetic (historical)
+Weyde, P. H. Vander (1879). "Arithmetic" . The American Cyclopædia.
