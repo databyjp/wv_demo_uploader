@@ -30,7 +30,7 @@ client = weaviate.connect_to_local(
 )
 ```
 
-To use a `weaviate.Client` object, as used in the Weaviate Python client `v3.x`, import the dataset class from `weaviate_datasets.v3`.   
+To use a `weaviate.Client` object, as used in the Weaviate Python client `v3.x`, import the dataset class from `weaviate_datasets.v3`.
 
 ```python
 import weaviate_datasets.v3_datasets as wd_v3
@@ -48,14 +48,16 @@ dataset.upload_dataset(client)  # Pass the Weaviate client instance
   - `WikiChunk` collection
 - WineReviews (50 wine reviews)
   - `WineReview` collection
-- WineReviewsMT (50 wine reviews) 
+- WineReviewsMT (50 wine reviews)
   - `WineReviewMT` collection, tenants `tenantA` and `tenantB`
 - JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
   - `JeopardyQuestion` and `JeopardyCategory` collections
 - JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
   - `JeopardyQuestion` and `JeopardyCategory` collections
 
-## Available classes - V3 collection 
+## Available classes - V3 collection
+
+These are available with a `V3` suffix, and are compatible with the Weaviate Python client `v3.x`.
 
 #### Not including vectors
 - WikiArticles (A handful of Wikipedia summaries)
