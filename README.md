@@ -60,14 +60,13 @@ dataset.upload_dataset(client)  # Pass the Weaviate client instance
 These are available with a `V3` suffix, and are compatible with the Weaviate Python client `v3.x`.
 
 #### Not including vectors
-- WikiArticles (A handful of Wikipedia summaries)
 - WineReviews (50 wine reviews)
 - WineReviewsMT (50 wine reviews, multi-tenancy enabled)
 
 #### Including vectors
 - JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
-- JeopardyQuestions1kMT (1,000 Jeopardy questions & answers, multi-tenancy enabled, vectorized with OpenAI `text-embedding-ada-002`)
 - JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
+- JeopardyQuestions1kMT (1,000 Jeopardy questions & answers, multi-tenancy enabled, vectorized with OpenAI `text-embedding-ada-002`)
 - NewsArticles (News articles, including their corresponding publications, authors & categories, vectorized with OpenAI `text-embedding-ada-002`)
 
 ## Data sources
