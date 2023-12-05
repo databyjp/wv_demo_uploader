@@ -46,6 +46,19 @@ dataset.upload_dataset(client)  # Pass the Weaviate client instance
 
 - Wiki100 (Top 100 Wikipedia articles)
   - `WikiChunk` collection
+  - Various chunking options available:
+    - Default: `wiki_sections` (sections of the Wikipedia article)
+    - `wiki_section_chunked` (sections of the Wikipedia article, chunked into 200 character chunks)
+    - `wiki_heading_only` (only the headings of the Wikipedia article sections)
+    - `fixed` (fixed length chunks of 200 characters)
+  - Use it as follows:
+    ```python
+    d = wd.Wiki100()
+    d.collection_name = "WikiChunk"
+    d.set_chunking("wiki_section_chunked")
+    upload_responses = d.upload_dataset(client, overwrite=True)
+    ```
+
 - WineReviews (50 wine reviews)
   - `WineReview` collection
 - WineReviewsMT (50 wine reviews)

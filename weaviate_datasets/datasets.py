@@ -263,7 +263,7 @@ class Wiki100(SimpleDataset):
                 description="Chunk number - 1 index",
             ),
         ]
-        self.chunking = "fixed"
+        self.chunking = "wiki_sections"
 
     def set_chunking(
         self,
