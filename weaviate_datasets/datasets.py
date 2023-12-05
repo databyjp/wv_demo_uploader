@@ -1,15 +1,24 @@
 import os
-from typing import Dict, Tuple, Union, List, Generator
+from typing import Dict, Tuple, Union, List, Generator, Literal
 from pathlib import Path
 import pandas as pd
 from weaviate.util import generate_uuid5
 from weaviate import WeaviateClient, Client
-from weaviate.classes import Configure, Property, ReferenceProperty, DataType, Tokenization, Tenant
+from weaviate.classes import (
+    Configure,
+    Property,
+    ReferenceProperty,
+    DataType,
+    Tokenization,
+    Tenant,
+    DataObject,
+)
 from weaviate.collections.collection import Collection
 from tqdm import tqdm
 import numpy as np
 import json
 import logging
+import time
 
 
 logging.basicConfig(
@@ -19,18 +28,65 @@ logging.basicConfig(
 basedir = os.path.dirname(os.path.abspath(__file__))
 
 
+def wiki_parser(
+    wiki_text: str, heading_only: bool = False, chunk_sections: bool = False
+) -> List[Dict[str, str]]:
+    lines = wiki_text.split("\n")
+    sections = []
+    current_section = {"heading": "", "body": ""}
+    current_heading = []
+
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+
+        if line.startswith("*"):
+            # Update current section if it has content
+            if current_section["body"]:
+                sections.append(current_section)
+                current_section = {"heading": "", "body": ""}
+
+            # Update heading levels
+            depth = line[:5].split(":")[0].count("*")
+            heading_loc = line.find(" -")
+            if heading_loc != -1:
+                line_heading = line[: line.find(" -")]
+            else:
+                line_heading = " NO HEADING FOUND "
+            current_heading = current_heading[: depth - 1] + [line_heading]
+            current_section["heading"] = " | ".join(current_heading)
+            current_section["body"] = line[line.find(" -") :]
+        else:
+            # Continuation of the previous heading's body
+            current_section["body"] += line + "\n"
+
+    # Add the last section if it has content
+    if current_section["body"]:
+        sections.append(current_section)
+
+    # Handle secction dictionaries
+    if heading_only:
+        return [s["heading"] for s in sections]
+    else:
+        sections = [s for s in sections if len(s["body"]) > 30]
+        if chunk_sections:
+            chunks = list()
+            for s in sections:
+                section_chunks = chunk_string(s["body"])
+                for c in section_chunks:
+                    chunks.append(s["heading"] + " | " + c)
+            return chunks
+        else:
+            return [s["heading"] + " | " + s["body"] for s in sections]
+
+
 def chunk_string(s, chunk_size=200, overlap=20):
     chunks = []
     start = 0
 
     while start < len(s):
-        # For the first chunk, there's no overlap
-        if start == 0:
-            end = start + chunk_size
-        else:
-            end = start + chunk_size - overlap
-
-        # Ensure the end does not exceed the string length
+        end = start + chunk_size
         end = min(end, len(s))
 
         chunks.append(s[start:end])
@@ -46,7 +102,6 @@ def chunk_string(s, chunk_size=200, overlap=20):
 
 
 class SimpleDataset:
-
     collection_name = None
     vectorizer_config = Configure.Vectorizer.text2vec_openai()
     generative_config = Configure.Generative.openai()
@@ -63,7 +118,7 @@ class SimpleDataset:
             vectorizer_config=self.vectorizer_config,
             generative_config=self.generative_config,
             properties=self.properties,
-            multi_tenancy_config=self.mt_config
+            multi_tenancy_config=self.mt_config,
         )
         if self.mt_config is not None:
             collection.tenants.create(self.tenants)
@@ -73,64 +128,76 @@ class SimpleDataset:
     def _class_dataloader(self) -> Generator:
         yield {}, None
 
-    def upload_objects(
-        self, client: WeaviateClient, batch_size=200
-    ) -> bool:
+    def upload_objects(self, client: WeaviateClient, batch_size=200) -> List:
         """
         Base uploader method for uploading a single class.
         """
 
-        client.batch.configure(batch_size=batch_size)
+        def batch_insert_many(tgt_collection: Collection):
+            manual_batch = list()
+            responses = list()
+            counter = 0
+            for data_obj, vector in tqdm(self._class_dataloader()):
+                obj = DataObject(
+                    properties=data_obj,
+                    uuid=generate_uuid5(data_obj),
+                    vector=vector
+                )
+                manual_batch.append(obj)
+                counter += 1
+                if counter % batch_size == 0:
+                    resp = tgt_collection.data.insert_many(manual_batch)
+                    responses.append(resp)
+                    manual_batch = list()
+                    time.sleep(1)  # TODO - fix this stupid time limit / turn it into a parameter
+            resp = tgt_collection.data.insert_many(manual_batch)
+            responses.append(resp)
+            return responses
 
-        with client.batch as batch:
-            if self.mt_config is None:
-                for data_obj, vector in tqdm(self._class_dataloader()):
-                    uuid = generate_uuid5(data_obj)
-                    batch.add_object(
-                        properties=data_obj,
-                        collection=self.collection_name,
-                        uuid=uuid,
-                        vector=vector,
-                    )
-            else:
-                for tenant in self.tenants:
-                    for data_obj, vector in tqdm(self._class_dataloader()):
-                        uuid = generate_uuid5(data_obj)
-                        batch.add_object(
-                            properties=data_obj,
-                            collection=self.collection_name,
-                            uuid=uuid,
-                            vector=vector,
-                            tenant=tenant.name
-                        )
 
-        return True
+        collection = client.collections.get(self.collection_name)
+        if self.mt_config is None:
+            responses = batch_insert_many(collection)
+        else:
+            for tenant in self.tenants:
+                tenant_collection = collection.with_tenant(tenant.name)
+                responses = batch_insert_many(tenant_collection)
+        return responses
 
-    def upload_dataset(self, client: WeaviateClient, batch_size=300, overwrite=False) -> bool:
+
+    def upload_dataset(
+        self, client: WeaviateClient, batch_size=200, overwrite=False
+    ) -> List:
         """
         Adds the class to the schema,
         then calls `upload_objects` to upload the objects.
         """
         if len(self.tenants) == 0 and self.mt_config is not None:
-            raise ValueError("A list of tenants is required with multi-tenancy switched on.")
+            raise ValueError(
+                "A list of tenants is required with multi-tenancy switched on."
+            )
 
         if type(client) == Client:
-            raise TypeError("Sorry, this is for the `v4` Weaviate Python Client, with the WeaviateClient object type. Please refer to the README for more information.")
+            raise TypeError(
+                "Sorry, this is for the `v4` Weaviate Python Client, with the WeaviateClient object type. Please refer to the README for more information."
+            )
 
         if overwrite:
             client.collections.delete(self.collection_name)
+
         _ = self.add_collection(client)
-        _ = self.upload_objects(client, batch_size=batch_size)
-        return True
+        upload_responses = self.upload_objects(client, batch_size=batch_size)
+
+        return upload_responses
 
     def get_sample(self) -> Dict:
         dl = self._class_dataloader()
         data_obj, _ = next(dl)
+
         return data_obj
 
 
 class WineReviews(SimpleDataset):
-
     def __init__(self):
         self.collection_name = "WineReview"
         self.winedata_path = os.path.join(basedir, "data", "winemag_tiny.csv")
@@ -138,30 +205,24 @@ class WineReviews(SimpleDataset):
         self.generative_config = Configure.Generative.openai()
         self.properties = [
             Property(
-                name="review_body",
-                data_type=DataType.TEXT,
-                description="Review body"
+                name="review_body", data_type=DataType.TEXT, description="Review body"
             ),
             Property(
-                name="title",
-                data_type=DataType.TEXT,
-                description="Name of the wine"
+                name="title", data_type=DataType.TEXT, description="Name of the wine"
             ),
             Property(
                 name="country",
                 data_type=DataType.TEXT,
-                description="Originating country"
+                description="Originating country",
             ),
             Property(
                 name="points",
                 data_type=DataType.INT,
-                description="Review score in points"
+                description="Review score in points",
             ),
             Property(
-                name="price",
-                data_type=DataType.NUMBER,
-                description="Listed price"
-            )
+                name="price", data_type=DataType.NUMBER, description="Listed price"
+            ),
         ]
 
     def _class_dataloader(self):
@@ -186,7 +247,6 @@ class WineReviewsMT(WineReviews):
 
 
 class Wiki100(SimpleDataset):
-
     def __init__(self):
         self.collection_name = "WikiChunk"
         self.article_dir = Path(basedir) / "data/wiki100"
@@ -194,37 +254,51 @@ class Wiki100(SimpleDataset):
         self.generative_config = Configure.Generative.openai()
         self.properties = [
             Property(
-                name="title",
-                data_type=DataType.TEXT,
-                description="Article title"
+                name="title", data_type=DataType.TEXT, description="Article title"
             ),
-            Property(
-                name="chunk",
-                data_type=DataType.TEXT,
-                description="Text chunk"
-            ),
+            Property(name="chunk", data_type=DataType.TEXT, description="Text chunk"),
             Property(
                 name="chunk_number",
                 data_type=DataType.INT,
-                description="Chunk number - 1 index"
+                description="Chunk number - 1 index",
             ),
         ]
+        self.chunking = "fixed"
+
+    def set_chunking(
+        self,
+        chunking_method: Literal[
+            "fixed", "wiki_sections", "wiki_sections_chunked", "wiki_heading_only"
+        ],
+    ):
+        self.chunking = chunking_method
 
     def _class_dataloader(self):
         fpaths = self.article_dir.glob("*.txt")
         for fpath in fpaths:
-            with fpath.open('r') as f:
+            with fpath.open("r") as f:
                 article_title = f.name.split("/")[-1][:-4]
                 article_body = f.read()
 
-            chunks = chunk_string(article_body)
+            if self.chunking == "fixed":
+                chunks = chunk_string(article_body)
+            elif self.chunking == "wiki_sections":
+                chunks = wiki_parser(article_body)
+            elif self.chunking == "wiki_sections_chunked":
+                chunks = wiki_parser(article_body, chunk_sections=True)
+            elif self.chunking == "wiki_heading_only":
+                chunks = wiki_parser(article_body, heading_only=True)
+            else:
+                logging.warn(
+                    "Chunking type not recognised. Defaulting to fixed length chunking."
+                )
+                chunks = chunk_string(article_body)
 
             for i, chunk in enumerate(chunks):
-
                 data_obj = {
                     "title": article_title,
                     "chunk": chunk,
-                    "chunk_number": i+1
+                    "chunk_number": i + 1,
                 }
 
                 yield data_obj, None
@@ -251,9 +325,9 @@ class JeopardyQuestions1k:
                 Property(
                     name="title",
                     data_type=DataType.TEXT,
-                    description="The category title"
+                    description="The category title",
                 )
-            ]
+            ],
         )
 
         questions = client.collections.create(
@@ -261,9 +335,7 @@ class JeopardyQuestions1k:
             vectorizer_config=Configure.Vectorizer.text2vec_openai(),
             generative_config=Configure.Generative.openai(),
             inverted_index_config=Configure.inverted_index(
-                index_property_length=True,
-                index_timestamps=True,
-                index_null_state=True
+                index_property_length=True, index_timestamps=True, index_null_state=True
             ),
             properties=[
                 ReferenceProperty(
@@ -273,30 +345,28 @@ class JeopardyQuestions1k:
                 Property(
                     name="question",
                     data_type=DataType.TEXT,
-                    description="Question asked to the contestant"
+                    description="Question asked to the contestant",
                 ),
                 Property(
                     name="answer",
                     data_type=DataType.TEXT,
-                    description="Answer provided by the contestant"
+                    description="Answer provided by the contestant",
                 ),
                 Property(
-                    name="points",
-                    data_type=DataType.INT,
-                    description="Jeopardy points"
+                    name="points", data_type=DataType.INT, description="Jeopardy points"
                 ),
                 Property(
                     name="round",
                     data_type=DataType.TEXT,
                     description="Jeopardy round",
-                    tokenization=Tokenization.FIELD
+                    tokenization=Tokenization.FIELD,
                 ),
                 Property(
                     name="air_date",
                     data_type=DataType.DATE,
-                    description="Date that the episode first aired on TV"
+                    description="Date that the episode first aired on TV",
                 ),
-            ]
+            ],
         )
         return categories, questions
 
@@ -333,9 +403,7 @@ class JeopardyQuestions1k:
         cat_emb_dict = dict(zip(cat_names, cat_arr))
         return cat_emb_dict
 
-    def upload_objects(
-        self, client: WeaviateClient, batch_size=200
-    ) -> bool:
+    def upload_objects(self, client: WeaviateClient, batch_size=200) -> bool:
         """
         Base uploader method for uploading a single class.
         """
@@ -368,18 +436,22 @@ class JeopardyQuestions1k:
                     from_object_uuid=id_from,
                     to_object_collection=self.category_collection,
                     to_object_uuid=id_to,
-                    from_property_name=self.xref_prop_name
+                    from_property_name=self.xref_prop_name,
                 )
 
         return True
 
-    def upload_dataset(self, client: WeaviateClient, batch_size=300, overwrite=False) -> bool:
+    def upload_dataset(
+        self, client: WeaviateClient, batch_size=300, overwrite=False
+    ) -> bool:
         """
         Adds the class to the schema,
         then calls `upload_objects` to upload the objects.
         """
         if type(client) == Client:
-            raise TypeError("Sorry, this is for the `v4` Weaviate Python Client, with the WeaviateClient object type. Please refer to the README for more information.")
+            raise TypeError(
+                "Sorry, this is for the `v4` Weaviate Python Client, with the WeaviateClient object type. Please refer to the README for more information."
+            )
 
         if overwrite:
             client.collections.delete(self.question_collection)

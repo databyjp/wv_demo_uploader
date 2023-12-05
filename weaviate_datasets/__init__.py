@@ -12,5 +12,5 @@ from .v3_datasets import (
     JeopardyQuestions1k as JeopardyQuestions1k_V3,
     JeopardyQuestions10k as JeopardyQuestions10k_V3,
     JeopardyQuestions1kMT as JeopardyQuestions1kMT_V3,
-    NewsArticles as NewsArticles_V3
+    NewsArticles as NewsArticles_V3,
 )
