@@ -340,7 +340,7 @@ class JeopardyQuestions1k:
             properties=[
                 ReferenceProperty(
                     name=self.xref_prop_name,
-                    target_collection="JeopardyQuestion",
+                    target_collection="JeopardyCategory",
                 ),
                 Property(
                     name="question",
