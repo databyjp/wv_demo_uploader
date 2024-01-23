@@ -14,7 +14,7 @@ from weaviate.classes.config import (
 from weaviate.classes.data import (
     DataObject
 )
-from weaviate.schema import Tenant
+from weaviate.classes.tenants import Tenant
 from weaviate.collections.collection import Collection
 from tqdm import tqdm
 import numpy as np
