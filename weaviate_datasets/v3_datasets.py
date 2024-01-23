@@ -6,8 +6,8 @@ import pandas as pd
 import numpy as np
 from weaviate.util import generate_uuid5
 import uuid
-from weaviate import Client, Tenant
-from weaviate import WeaviateClient
+from weaviate import Client, WeaviateClient
+from weaviate.schema import Tenant
 from tqdm import tqdm
 import logging
 from pathlib import Path

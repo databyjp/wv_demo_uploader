@@ -4,15 +4,17 @@ from pathlib import Path
 import pandas as pd
 from weaviate.util import generate_uuid5
 from weaviate import WeaviateClient, Client
-from weaviate.classes import (
+from weaviate.classes.config import (
     Configure,
     Property,
     ReferenceProperty,
     DataType,
-    Tokenization,
-    Tenant,
-    DataObject,
+    Tokenization
 )
+from weaviate.classes.data import (
+    DataObject
+)
+from weaviate.schema import Tenant
 from weaviate.collections.collection import Collection
 from tqdm import tqdm
 import numpy as np
@@ -338,10 +340,6 @@ class JeopardyQuestions1k:
                 index_property_length=True, index_timestamps=True, index_null_state=True
             ),
             properties=[
-                ReferenceProperty(
-                    name=self.xref_prop_name,
-                    target_collection="JeopardyCategory",
-                ),
                 Property(
                     name="question",
                     data_type=DataType.TEXT,
@@ -367,6 +365,12 @@ class JeopardyQuestions1k:
                     description="Date that the episode first aired on TV",
                 ),
             ],
+            references=[
+                ReferenceProperty(
+                    name=self.xref_prop_name,
+                    target_collection="JeopardyCategory",
+                ),
+            ]
         )
         return categories, questions
 
@@ -403,11 +407,10 @@ class JeopardyQuestions1k:
         cat_emb_dict = dict(zip(cat_names, cat_arr))
         return cat_emb_dict
 
-    def upload_objects(self, client: WeaviateClient, batch_size=200) -> bool:
+    def upload_objects(self, client: WeaviateClient) -> bool:
         """
         Base uploader method for uploading a single class.
         """
-        client.batch.configure(batch_size=batch_size)
         with client.batch as batch:
             for (data_obj_from, vec_from), (data_obj_to, vec_to) in tqdm(
                 self._class_pair_dataloader()
@@ -432,17 +435,16 @@ class JeopardyQuestions1k:
 
                 # Add references
                 batch.add_reference(
-                    from_object_collection=self.question_collection,
-                    from_object_uuid=id_from,
-                    to_object_collection=self.category_collection,
-                    to_object_uuid=id_to,
-                    from_property_name=self.xref_prop_name,
+                    from_collection=self.question_collection,
+                    from_uuid=id_from,
+                    from_property=self.xref_prop_name,
+                    to=id_to,
                 )
 
         return True
 
     def upload_dataset(
-        self, client: WeaviateClient, batch_size=300, overwrite=False
+        self, client: WeaviateClient, overwrite=False
     ) -> bool:
         """
         Adds the class to the schema,
@@ -458,7 +460,7 @@ class JeopardyQuestions1k:
             client.collections.delete(self.category_collection)
 
         _ = self.add_collections(client)
-        _ = self.upload_objects(client, batch_size=batch_size)
+        _ = self.upload_objects(client)
         return True
 
     def get_sample(self) -> Tuple[Dict, Dict]:

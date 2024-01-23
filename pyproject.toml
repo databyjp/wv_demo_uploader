@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "weaviate-demo-datasets"
-version = "0.4.2"
+version = "0.4.3"
 description = "Unofficial demo datasets for Weaviate"
 readme = "README.md"
 authors = [{ name = "JP Hwang", email = "me@jphwang.com" }]
