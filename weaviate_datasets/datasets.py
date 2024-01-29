@@ -411,7 +411,7 @@ class JeopardyQuestions1k:
         """
         Base uploader method for uploading a single class.
         """
-        with client.batch as batch:
+        with client.batch.dynamic() as batch:
             for (data_obj_from, vec_from), (data_obj_to, vec_to) in tqdm(
                 self._class_pair_dataloader()
             ):
