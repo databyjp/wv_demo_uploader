@@ -135,35 +135,26 @@ class SimpleDataset:
         Base uploader method for uploading a single class.
         """
 
-        def batch_insert_many(tgt_collection: Collection):
-            manual_batch = list()
-            responses = list()
-            counter = 0
-            for data_obj, vector in tqdm(self._class_dataloader()):
-                obj = DataObject(
-                    properties=data_obj,
-                    uuid=generate_uuid5(data_obj),
-                    vector=vector
-                )
-                manual_batch.append(obj)
-                counter += 1
-                if counter % batch_size == 0:
-                    resp = tgt_collection.data.insert_many(manual_batch)
-                    responses.append(resp)
-                    manual_batch = list()
-                    time.sleep(1)  # TODO - fix this stupid time limit / turn it into a parameter
-            resp = tgt_collection.data.insert_many(manual_batch)
-            responses.append(resp)
-            return responses
-
+        def batch_insert(tgt_collection: Collection):
+            with tgt_collection.batch.fixed_size(batch_size=batch_size) as batch:
+                counter = 0
+                for data_obj, vector in tqdm(self._class_dataloader()):
+                    batch.add_object(
+                        properties=data_obj,
+                        uuid=generate_uuid5(data_obj),
+                        vector=vector
+                    )
+                    counter += 1
+                    if counter % batch_size == 0:
+                        time.sleep(1)  # TODO - fix this stupid time limit / turn it into a parameter
 
         collection = client.collections.get(self.collection_name)
         if self.mt_config is None:
-            responses = batch_insert_many(collection)
+            responses = batch_insert(collection)
         else:
             for tenant in self.tenants:
                 tenant_collection = collection.with_tenant(tenant.name)
-                responses = batch_insert_many(tenant_collection)
+                responses = batch_insert(tenant_collection)
         return responses
 
 
