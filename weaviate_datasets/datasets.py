@@ -137,16 +137,12 @@ class SimpleDataset:
 
         def batch_insert(tgt_collection: Collection):
             with tgt_collection.batch.fixed_size(batch_size=batch_size) as batch:
-                counter = 0
                 for data_obj, vector in tqdm(self._class_dataloader()):
                     batch.add_object(
                         properties=data_obj,
                         uuid=generate_uuid5(data_obj),
                         vector=vector
                     )
-                    counter += 1
-                    if counter % batch_size == 0:
-                        time.sleep(1)  # TODO - fix this stupid time limit / turn it into a parameter
 
         collection = client.collections.get(self.collection_name)
         if self.mt_config is None:
