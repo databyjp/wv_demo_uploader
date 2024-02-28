@@ -61,6 +61,9 @@ dataset.upload_dataset(client)  # Pass the Weaviate client instance
 
 - WineReviews (50 wine reviews)
   - `WineReview` collection
+- WineReviewsNV (50 wine reviews)
+  - `WineReviewNV` collection, with named vectors ("title", "review_body", and "title_country")
+    - "title_country" -> Vector from concatenation of "title" + "country"
 - WineReviewsMT (50 wine reviews)
   - `WineReviewMT` collection, tenants `tenantA` and `tenantB`
 - JeopardyQuestions1k (1,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
