@@ -238,12 +238,12 @@ class WineReviewsMT(WineReviews):
 class WineReviewsNV(WineReviews):
     def __init__(self):
         super().__init__()
+        self.collection_name = "WineReviewNV"
         self.vectorizer_config = [
             Configure.NamedVectors.text2vec_openai(name="title", source_properties=["title"]),
             Configure.NamedVectors.text2vec_openai(name="review_body", source_properties=["review_body"]),
             Configure.NamedVectors.text2vec_openai(name="title_country", source_properties=["title", "country"]),
         ]
-        self.collection_name = "WineReviewNV"
 
 
 class Wiki100(SimpleDataset):
