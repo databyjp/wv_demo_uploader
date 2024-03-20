@@ -106,6 +106,7 @@ def chunk_string(s, chunk_size=200, overlap=20):
 class SimpleDataset:
     collection_name = None
     vectorizer_config = Configure.Vectorizer.text2vec_openai()
+    vectorindex_config = None,
     generative_config = Configure.Generative.openai()
     mt_config = None
     tenants = []
@@ -155,7 +156,7 @@ class SimpleDataset:
 
 
     def upload_dataset(
-        self, client: WeaviateClient, batch_size=200, overwrite=False
+        self, client: WeaviateClient, batch_size=200, overwrite=False, compress=False
     ) -> List:
         """
         Adds the class to the schema,
@@ -173,6 +174,11 @@ class SimpleDataset:
 
         if overwrite:
             client.collections.delete(self.collection_name)
+
+        if compress:
+            self.vectorindex_config = Configure.VectorIndex.hnsw(
+                quantizer=Configure.VectorIndex.Quantizer.pq()
+            )
 
         _ = self.add_collection(client)
         upload_responses = self.upload_objects(client, batch_size=batch_size)
@@ -320,6 +326,7 @@ class JeopardyQuestions1k:
         categories = client.collections.create(
             name=self.category_collection,
             vectorizer_config=Configure.Vectorizer.text2vec_openai(),
+            vector_index_config=self.vectorindex_config,
             generative_config=Configure.Generative.openai(),
             properties=[
                 Property(
@@ -333,6 +340,7 @@ class JeopardyQuestions1k:
         questions = client.collections.create(
             name=self.question_collection,
             vectorizer_config=Configure.Vectorizer.text2vec_openai(),
+            vector_index_config=self.vectorindex_config,
             generative_config=Configure.Generative.openai(),
             inverted_index_config=Configure.inverted_index(
                 index_property_length=True, index_timestamps=True, index_null_state=True
@@ -442,7 +450,7 @@ class JeopardyQuestions1k:
         return True
 
     def upload_dataset(
-        self, client: WeaviateClient, overwrite=False
+        self, client: WeaviateClient, overwrite=False, compress=False
     ) -> bool:
         """
         Adds the class to the schema,
@@ -456,6 +464,11 @@ class JeopardyQuestions1k:
         if overwrite:
             client.collections.delete(self.question_collection)
             client.collections.delete(self.category_collection)
+
+        if compress:
+            self.vectorindex_config = Configure.VectorIndex.hnsw(
+                quantizer=Configure.VectorIndex.Quantizer.pq()
+            )
 
         _ = self.add_collections(client)
         _ = self.upload_objects(client)
