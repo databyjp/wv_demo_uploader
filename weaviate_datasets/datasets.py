@@ -1,5 +1,5 @@
 import os
-from typing import Dict, Tuple, Union, List, Generator, Literal
+from typing import Dict, Tuple, List, Generator, Literal
 from pathlib import Path
 import pandas as pd
 from weaviate.util import generate_uuid5
@@ -11,16 +11,12 @@ from weaviate.classes.config import (
     DataType,
     Tokenization
 )
-from weaviate.classes.data import (
-    DataObject
-)
 from weaviate.classes.tenants import Tenant
 from weaviate.collections.collection import Collection
 from tqdm import tqdm
 import numpy as np
 import json
 import logging
-import time
 
 
 logging.basicConfig(
@@ -106,7 +102,6 @@ def chunk_string(s, chunk_size=200, overlap=20):
 class SimpleDataset:
     collection_name = None
     vectorizer_config = Configure.Vectorizer.text2vec_openai()
-    vectorindex_config = None,
     generative_config = Configure.Generative.openai()
     mt_config = None
     tenants = []
@@ -177,8 +172,10 @@ class SimpleDataset:
 
         if compress:
             self.vectorindex_config = Configure.VectorIndex.hnsw(
-                quantizer=Configure.VectorIndex.Quantizer.pq()
+                quantizer=Configure.VectorIndex.Quantizer.bq()
             )
+        else:
+            self.vectorindex_config = Configure.VectorIndex.hnsw()
 
         _ = self.add_collection(client)
         upload_responses = self.upload_objects(client, batch_size=batch_size)
@@ -328,6 +325,7 @@ class JeopardyQuestions1k:
             vectorizer_config=Configure.Vectorizer.text2vec_openai(),
             vector_index_config=self.vectorindex_config,
             generative_config=Configure.Generative.openai(),
+            reranker_config=Configure.Reranker.cohere(),
             properties=[
                 Property(
                     name="title",
@@ -342,6 +340,7 @@ class JeopardyQuestions1k:
             vectorizer_config=Configure.Vectorizer.text2vec_openai(),
             vector_index_config=self.vectorindex_config,
             generative_config=Configure.Generative.openai(),
+            reranker_config=Configure.Reranker.cohere(),
             inverted_index_config=Configure.inverted_index(
                 index_property_length=True, index_timestamps=True, index_null_state=True
             ),
@@ -467,8 +466,10 @@ class JeopardyQuestions1k:
 
         if compress:
             self.vectorindex_config = Configure.VectorIndex.hnsw(
-                quantizer=Configure.VectorIndex.Quantizer.pq()
+                quantizer=Configure.VectorIndex.Quantizer.bq()
             )
+        else:
+            self.vectorindex_config = Configure.VectorIndex.hnsw()
 
         _ = self.add_collections(client)
         _ = self.upload_objects(client)
