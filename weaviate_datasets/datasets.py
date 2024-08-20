@@ -100,12 +100,22 @@ def chunk_string(s, chunk_size=200, overlap=20):
 
 
 class SimpleDataset:
-    collection_name = None
-    vectorizer_config = Configure.Vectorizer.text2vec_openai()
-    generative_config = Configure.Generative.openai()
-    mt_config = None
-    tenants = []
-    properties = list()
+
+    def __init__(
+            self,
+            collection_name=None,
+            vectorizer_config=None,
+            generative_config=None,
+            mt_config=None,
+            tenants=None,
+            properties=None,
+    ):
+        self.collection_name = collection_name or None
+        self.vectorizer_config = vectorizer_config or Configure.Vectorizer.text2vec_openai()
+        self.generative_config = generative_config or Configure.Generative.openai()
+        self.mt_config = mt_config or None
+        self.tenants = tenants or []
+        self.properties = properties or list()
 
     def add_collection(self, client: WeaviateClient) -> Collection:
         """
@@ -316,6 +326,7 @@ class JeopardyQuestions1k:
     _data_fpath = os.path.join(basedir, "data", "jeopardy_1k.json")
     _arr_fpath = os.path.join(basedir, "data", "jeopardy_1k.json.npy")
     _category_vec_fpath = os.path.join(basedir, "data", "jeopardy_1k_categories.csv")
+    _use_existing_vecs = True
 
     _question_collection = "JeopardyQuestion"
     _category_collection = "JeopardyCategory"
@@ -324,9 +335,12 @@ class JeopardyQuestions1k:
     def __init__(
         self, vectorizer_config=None, generative_config=None, reranker_config=None
     ):
-        self.vectorizer_config = (
-            vectorizer_config or Configure.Vectorizer.text2vec_openai()
-        )
+        if vectorizer_config is None:
+            vectorizer_config = Configure.Vectorizer.text2vec_openai()
+        else:
+            vectorizer_config = vectorizer_config
+            _use_existing_vecs = False
+
         self.generative_config = generative_config or Configure.Generative.openai()
         self.reranker_config = reranker_config or Configure.Reranker.cohere()
 
@@ -434,8 +448,14 @@ class JeopardyQuestions1k:
             for (data_obj_from, vec_from), (data_obj_to, vec_to) in tqdm(
                 self._class_pair_dataloader()
             ):
+                # Use existing vectors if available
+                if not self._use_existing_vecs:
+                    vec_from = None
+                    vec_to = None
+
                 # Add "class_from" objects
                 id_from = generate_uuid5(data_obj_from)
+
                 batch.add_object(
                     properties=data_obj_from,
                     collection=self._question_collection,
