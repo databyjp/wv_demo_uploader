@@ -199,32 +199,42 @@ class SimpleDataset:
 
 
 class WineReviews(SimpleDataset):
-    def __init__(self):
-        self.collection_name = "WineReview"
-        self.winedata_path = os.path.join(basedir, "data", "winemag_tiny.csv")
-        self.vectorizer_config = Configure.Vectorizer.text2vec_openai()
-        self.generative_config = Configure.Generative.openai()
-        self.properties = [
-            Property(
-                name="review_body", data_type=DataType.TEXT, description="Review body"
-            ),
-            Property(
-                name="title", data_type=DataType.TEXT, description="Name of the wine"
-            ),
-            Property(
-                name="country",
-                data_type=DataType.TEXT,
-                description="Originating country",
-            ),
-            Property(
-                name="points",
-                data_type=DataType.INT,
-                description="Review score in points",
-            ),
-            Property(
-                name="price", data_type=DataType.NUMBER, description="Listed price"
-            ),
-        ]
+    def __init__(
+        self,
+        collection_name="WineReview",
+        vectorizer_config=None,
+        generative_config=None,
+    ):
+        super().__init__(
+            collection_name=collection_name,
+            vectorizer_config=vectorizer_config or Configure.Vectorizer.text2vec_openai(),
+            generative_config=generative_config or Configure.Generative.openai(),
+            properties=[
+                Property(
+                    name="review_body", data_type=DataType.TEXT, description="Review body"
+                ),
+                Property(
+                    name="title", data_type=DataType.TEXT, description="Name of the wine"
+                ),
+                Property(
+                    name="country",
+                    data_type=DataType.TEXT,
+                    description="Originating country",
+                ),
+                Property(
+                    name="points",
+                    data_type=DataType.INT,
+                    description="Review score in points",
+                ),
+                Property(
+                    name="price", data_type=DataType.NUMBER, description="Listed price"
+                ),
+            ]
+        )
+
+        # Set Class-specific attributes
+        self.basedir = basedir or os.getcwd()
+        self.winedata_path = os.path.join(self.basedir, "data", "winemag_tiny.csv")
 
     def _class_dataloader(self):
         df = pd.read_csv(self.winedata_path)
@@ -265,22 +275,31 @@ class WineReviewsNV(WineReviews):
 
 
 class Wiki100(SimpleDataset):
-    def __init__(self):
-        self.collection_name = "WikiChunk"
+    def __init__(
+        self,
+        collection_name="WikiChunk",
+        vectorizer_config=None,
+        generative_config=None,
+    ):
+        super().__init__(
+            collection_name=collection_name,
+            vectorizer_config=vectorizer_config or Configure.Vectorizer.text2vec_openai(),
+            generative_config=generative_config or Configure.Generative.openai(),
+            properties=[
+                Property(
+                    name="title", data_type=DataType.TEXT, description="Article title"
+                ),
+                Property(name="chunk", data_type=DataType.TEXT, description="Text chunk"),
+                Property(
+                    name="chunk_number",
+                    data_type=DataType.INT,
+                    description="Chunk number - 1 index",
+                ),
+            ]
+        )
+
+        # Set Class-specific attributes
         self.article_dir = Path(basedir) / "data/wiki100"
-        self.vectorizer_config = Configure.Vectorizer.text2vec_openai()
-        self.generative_config = Configure.Generative.openai()
-        self.properties = [
-            Property(
-                name="title", data_type=DataType.TEXT, description="Article title"
-            ),
-            Property(name="chunk", data_type=DataType.TEXT, description="Text chunk"),
-            Property(
-                name="chunk_number",
-                data_type=DataType.INT,
-                description="Chunk number - 1 index",
-            ),
-        ]
         self.chunking = "wiki_sections"
 
     def set_chunking(
@@ -335,12 +354,10 @@ class JeopardyQuestions1k:
     def __init__(
         self, vectorizer_config=None, generative_config=None, reranker_config=None
     ):
-        if vectorizer_config is None:
-            vectorizer_config = Configure.Vectorizer.text2vec_openai()
-        else:
-            vectorizer_config = vectorizer_config
-            _use_existing_vecs = False
+        if vectorizer_config is not None:
+            self._use_existing_vecs = False
 
+        self.vectorizer_config = vectorizer_config or Configure.Vectorizer.text2vec_openai()
         self.generative_config = generative_config or Configure.Generative.openai()
         self.reranker_config = reranker_config or Configure.Reranker.cohere()
 
