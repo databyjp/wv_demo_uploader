@@ -4,6 +4,7 @@ temp*.ipynb
 temp
 *10k*
 weaviate-demo-datasets*
+weaviate_demo_datasets*
 
 # Contents of `newsarticles.zip`
 weaviate_datasets/data/newsarticles/
