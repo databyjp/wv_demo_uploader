@@ -100,22 +100,25 @@ def chunk_string(s, chunk_size=200, overlap=20):
 
 
 class SimpleDataset:
-
     def __init__(
-            self,
-            collection_name=None,
-            vectorizer_config=None,
-            generative_config=None,
-            mt_config=None,
-            tenants=None,
-            properties=None,
+        self,
+        collection_name=None,
+        vectorizer_config=None,
+        generative_config=None,
+        mt_config=None,
+        tenants=None,
+        properties=None,
     ):
         self.collection_name = collection_name or None
-        self.vectorizer_config = vectorizer_config or Configure.Vectorizer.text2vec_openai()
+        self.vectorizer_config = (
+            vectorizer_config or Configure.Vectorizer.text2vec_openai()
+        )
         self.generative_config = generative_config or Configure.Generative.openai()
         self.mt_config = mt_config or None
         self.tenants = tenants or []
         self.properties = properties or list()
+
+        self._basedir = basedir
 
     def add_collection(self, client: WeaviateClient) -> Collection:
         """
@@ -207,14 +210,19 @@ class WineReviews(SimpleDataset):
     ):
         super().__init__(
             collection_name=collection_name,
-            vectorizer_config=vectorizer_config or Configure.Vectorizer.text2vec_openai(),
+            vectorizer_config=vectorizer_config
+            or Configure.Vectorizer.text2vec_openai(),
             generative_config=generative_config or Configure.Generative.openai(),
             properties=[
                 Property(
-                    name="review_body", data_type=DataType.TEXT, description="Review body"
+                    name="review_body",
+                    data_type=DataType.TEXT,
+                    description="Review body",
                 ),
                 Property(
-                    name="title", data_type=DataType.TEXT, description="Name of the wine"
+                    name="title",
+                    data_type=DataType.TEXT,
+                    description="Name of the wine",
                 ),
                 Property(
                     name="country",
@@ -229,12 +237,11 @@ class WineReviews(SimpleDataset):
                 Property(
                     name="price", data_type=DataType.NUMBER, description="Listed price"
                 ),
-            ]
+            ],
         )
 
         # Set Class-specific attributes
-        self.basedir = basedir or os.getcwd()
-        self.winedata_path = os.path.join(self.basedir, "data", "winemag_tiny.csv")
+        self.winedata_path = os.path.join(self._basedir, "data", "winemag_tiny.csv")
 
     def _class_dataloader(self):
         df = pd.read_csv(self.winedata_path)
@@ -283,23 +290,27 @@ class Wiki100(SimpleDataset):
     ):
         super().__init__(
             collection_name=collection_name,
-            vectorizer_config=vectorizer_config or Configure.Vectorizer.text2vec_openai(),
+            vectorizer_config=vectorizer_config
+            or Configure.Vectorizer.text2vec_openai(),
             generative_config=generative_config or Configure.Generative.openai(),
             properties=[
                 Property(
                     name="title", data_type=DataType.TEXT, description="Article title"
                 ),
-                Property(name="chunk", data_type=DataType.TEXT, description="Text chunk"),
+                Property(
+                    name="chunk", data_type=DataType.TEXT, description="Text chunk"
+                ),
                 Property(
                     name="chunk_number",
                     data_type=DataType.INT,
                     description="Chunk number - 1 index",
                 ),
-            ]
+            ],
         )
 
         # Set Class-specific attributes
-        self.article_dir = Path(basedir) / "data/wiki100"
+        self._basedir = basedir
+        self.article_dir = Path(self._basedir) / "data/wiki100"
         self.chunking = "wiki_sections"
 
     def set_chunking(
@@ -314,7 +325,7 @@ class Wiki100(SimpleDataset):
         fpaths = self.article_dir.glob("*.txt")
         for fpath in fpaths:
             with fpath.open("r") as f:
-                article_title = f.name.split("/")[-1][:-4]
+                article_title = fpath.stem
                 article_body = f.read()
 
             if self.chunking == "fixed":
@@ -342,24 +353,30 @@ class Wiki100(SimpleDataset):
 
 
 class JeopardyQuestions1k:
-    _data_fpath = os.path.join(basedir, "data", "jeopardy_1k.json")
-    _arr_fpath = os.path.join(basedir, "data", "jeopardy_1k.json.npy")
-    _category_vec_fpath = os.path.join(basedir, "data", "jeopardy_1k_categories.csv")
-    _use_existing_vecs = True
-
-    _question_collection = "JeopardyQuestion"
-    _category_collection = "JeopardyCategory"
-    _xref_prop_name = "hasCategory"
-
     def __init__(
         self, vectorizer_config=None, generative_config=None, reranker_config=None
     ):
         if vectorizer_config is not None:
             self._use_existing_vecs = False
 
-        self.vectorizer_config = vectorizer_config or Configure.Vectorizer.text2vec_openai()
+        self.vectorizer_config = (
+            vectorizer_config or Configure.Vectorizer.text2vec_openai()
+        )
         self.generative_config = generative_config or Configure.Generative.openai()
         self.reranker_config = reranker_config or Configure.Reranker.cohere()
+
+        self._basedir = basedir
+
+        self._data_fpath = os.path.join(self._basedir, "data", "jeopardy_1k.json")
+        self._arr_fpath = os.path.join(self._basedir, "data", "jeopardy_1k.json.npy")
+        self._category_vec_fpath = os.path.join(
+            self._basedir, "data", "jeopardy_1k_categories.csv"
+        )
+        self._use_existing_vecs = True
+
+        self._question_collection = "JeopardyQuestion"
+        self._category_collection = "JeopardyCategory"
+        self._xref_prop_name = "hasCategory"
 
     def add_collections(self, client: WeaviateClient) -> Tuple[Collection, Collection]:
         """
@@ -533,6 +550,10 @@ class JeopardyQuestions1k:
 
 
 class JeopardyQuestions10k(JeopardyQuestions1k):
-    data_fpath = os.path.join(basedir, "data", "jeopardy_10k.json")
-    arr_fpath = os.path.join(basedir, "data", "jeopardy_10k.json.npy")
-    category_vec_fpath = os.path.join(basedir, "data", "jeopardy_10k_categories.csv")
+    def __init__(self):
+        super.__init__()
+        self.data_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json")
+        self.arr_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json.npy")
+        self.category_vec_fpath = os.path.join(
+            self._basedir, "data", "jeopardy_10k_categories.csv"
+        )

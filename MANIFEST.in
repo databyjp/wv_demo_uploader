@@ -1,6 +1,7 @@
 include weaviate_datasets/data/*.json
 include weaviate_datasets/data/*.npy
 include weaviate_datasets/data/*.csv
+include weaviate_datasets/data/wiki100/*.txt
 
 prune weaviate_datasets/data/newsarticles
 exclude weaviate_datasets/data/newsarticles.zip
