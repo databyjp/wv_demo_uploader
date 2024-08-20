@@ -9,7 +9,7 @@ from weaviate.classes.config import (
     Property,
     ReferenceProperty,
     DataType,
-    Tokenization
+    Tokenization,
 )
 from weaviate.classes.tenants import Tenant
 from weaviate.collections.collection import Collection
@@ -137,7 +137,7 @@ class SimpleDataset:
                     batch.add_object(
                         properties=data_obj,
                         uuid=generate_uuid5(data_obj),
-                        vector=vector
+                        vector=vector,
                     )
 
         collection = client.collections.get(self.collection_name)
@@ -148,7 +148,6 @@ class SimpleDataset:
                 tenant_collection = collection.with_tenant(tenant.name)
                 responses = batch_insert(tenant_collection)
         return responses
-
 
     def upload_dataset(
         self, client: WeaviateClient, batch_size=200, overwrite=False, compress=False
@@ -243,9 +242,15 @@ class WineReviewsNV(WineReviews):
         super().__init__()
         self.collection_name = "WineReviewNV"
         self.vectorizer_config = [
-            Configure.NamedVectors.text2vec_openai(name="title", source_properties=["title"]),
-            Configure.NamedVectors.text2vec_openai(name="review_body", source_properties=["review_body"]),
-            Configure.NamedVectors.text2vec_openai(name="title_country", source_properties=["title", "country"]),
+            Configure.NamedVectors.text2vec_openai(
+                name="title", source_properties=["title"]
+            ),
+            Configure.NamedVectors.text2vec_openai(
+                name="review_body", source_properties=["review_body"]
+            ),
+            Configure.NamedVectors.text2vec_openai(
+                name="title_country", source_properties=["title", "country"]
+            ),
         ]
 
 
@@ -308,24 +313,33 @@ class Wiki100(SimpleDataset):
 
 
 class JeopardyQuestions1k:
-    data_fpath = os.path.join(basedir, "data", "jeopardy_1k.json")
-    arr_fpath = os.path.join(basedir, "data", "jeopardy_1k.json.npy")
-    category_vec_fpath = os.path.join(basedir, "data", "jeopardy_1k_categories.csv")
+    _data_fpath = os.path.join(basedir, "data", "jeopardy_1k.json")
+    _arr_fpath = os.path.join(basedir, "data", "jeopardy_1k.json.npy")
+    _category_vec_fpath = os.path.join(basedir, "data", "jeopardy_1k_categories.csv")
 
-    question_collection = "JeopardyQuestion"
-    category_collection = "JeopardyCategory"
-    xref_prop_name = "hasCategory"
+    _question_collection = "JeopardyQuestion"
+    _category_collection = "JeopardyCategory"
+    _xref_prop_name = "hasCategory"
+
+    def __init__(
+        self, vectorizer_config=None, generative_config=None, reranker_config=None
+    ):
+        self.vectorizer_config = (
+            vectorizer_config or Configure.Vectorizer.text2vec_openai()
+        )
+        self.generative_config = generative_config or Configure.Generative.openai()
+        self.reranker_config = reranker_config or Configure.Reranker.cohere()
 
     def add_collections(self, client: WeaviateClient) -> Tuple[Collection, Collection]:
         """
         For each class in the dataset, add its definition to the Weaviate instance.
         """
         categories = client.collections.create(
-            name=self.category_collection,
-            vectorizer_config=Configure.Vectorizer.text2vec_openai(),
+            name=self._category_collection,
+            vectorizer_config=self.vectorizer_config,
             vector_index_config=self.vectorindex_config,
-            generative_config=Configure.Generative.openai(),
-            reranker_config=Configure.Reranker.cohere(),
+            generative_config=self.generative_config,
+            reranker_config=self.reranker_config,
             properties=[
                 Property(
                     name="title",
@@ -336,11 +350,11 @@ class JeopardyQuestions1k:
         )
 
         questions = client.collections.create(
-            name=self.question_collection,
-            vectorizer_config=Configure.Vectorizer.text2vec_openai(),
+            name=self._question_collection,
+            vectorizer_config=self.vectorizer_config,
             vector_index_config=self.vectorindex_config,
-            generative_config=Configure.Generative.openai(),
-            reranker_config=Configure.Reranker.cohere(),
+            generative_config=self.generative_config,
+            reranker_config=self.reranker_config,
             inverted_index_config=Configure.inverted_index(
                 index_property_length=True, index_timestamps=True, index_null_state=True
             ),
@@ -372,20 +386,20 @@ class JeopardyQuestions1k:
             ],
             references=[
                 ReferenceProperty(
-                    name=self.xref_prop_name,
+                    name=self._xref_prop_name,
                     target_collection="JeopardyCategory",
                 ),
-            ]
+            ],
         )
         return categories, questions
 
     def _class_pair_dataloader(self):
         from datetime import datetime, timezone
 
-        question_vec_array = np.load(self.arr_fpath)
+        question_vec_array = np.load(self._arr_fpath)
         category_vec_dict = self._get_cat_array()
 
-        with open(self.data_fpath, "r") as f:
+        with open(self._data_fpath, "r") as f:
             data = json.load(f)
             for i, row in enumerate(data):
                 try:
@@ -406,7 +420,7 @@ class JeopardyQuestions1k:
                     logging.warning(f"Data parsing error on row {i}")
 
     def _get_cat_array(self) -> dict:
-        cat_df = pd.read_csv(self.category_vec_fpath)
+        cat_df = pd.read_csv(self._category_vec_fpath)
         cat_arr = cat_df.iloc[:, :-1].to_numpy()
         cat_names = cat_df["category"].to_list()
         cat_emb_dict = dict(zip(cat_names, cat_arr))
@@ -424,7 +438,7 @@ class JeopardyQuestions1k:
                 id_from = generate_uuid5(data_obj_from)
                 batch.add_object(
                     properties=data_obj_from,
-                    collection=self.question_collection,
+                    collection=self._question_collection,
                     uuid=id_from,
                     vector=vec_from,
                 )
@@ -433,16 +447,16 @@ class JeopardyQuestions1k:
                 id_to = generate_uuid5(data_obj_to)
                 batch.add_object(
                     properties=data_obj_to,
-                    collection=self.category_collection,
+                    collection=self._category_collection,
                     uuid=id_to,
                     vector=vec_to,
                 )
 
                 # Add references
                 batch.add_reference(
-                    from_collection=self.question_collection,
+                    from_collection=self._question_collection,
                     from_uuid=id_from,
-                    from_property=self.xref_prop_name,
+                    from_property=self._xref_prop_name,
                     to=id_to,
                 )
 
@@ -461,8 +475,8 @@ class JeopardyQuestions1k:
             )
 
         if overwrite:
-            client.collections.delete(self.question_collection)
-            client.collections.delete(self.category_collection)
+            client.collections.delete(self._question_collection)
+            client.collections.delete(self._category_collection)
 
         if compress:
             self.vectorindex_config = Configure.VectorIndex.hnsw(
