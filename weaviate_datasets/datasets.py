@@ -356,9 +356,6 @@ class JeopardyQuestions1k:
     def __init__(
         self, vectorizer_config=None, generative_config=None, reranker_config=None
     ):
-        if vectorizer_config is not None:
-            self._use_existing_vecs = False
-
         self.vectorizer_config = (
             vectorizer_config or Configure.Vectorizer.text2vec_openai()
         )
@@ -372,11 +369,16 @@ class JeopardyQuestions1k:
         self._category_vec_fpath = os.path.join(
             self._basedir, "data", "jeopardy_1k_categories.csv"
         )
-        self._use_existing_vecs = True
 
         self._question_collection = "JeopardyQuestion"
         self._category_collection = "JeopardyCategory"
         self._xref_prop_name = "hasCategory"
+
+        if vectorizer_config is not None:
+            self._use_existing_vecs = False
+        else:
+            self._use_existing_vecs = True
+
 
     def add_collections(self, client: WeaviateClient) -> Tuple[Collection, Collection]:
         """
