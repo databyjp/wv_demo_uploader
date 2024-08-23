@@ -552,8 +552,10 @@ class JeopardyQuestions1k:
 
 
 class JeopardyQuestions10k(JeopardyQuestions1k):
-    def __init__(self):
-        super.__init__()
+    def __init__(
+        self, vectorizer_config=None, generative_config=None, reranker_config=None
+    ):
+        super().__init__( vectorizer_config, generative_config, reranker_config)
         self.data_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json")
         self.arr_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json.npy")
         self.category_vec_fpath = os.path.join(
