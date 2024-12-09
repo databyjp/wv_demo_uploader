@@ -112,6 +112,7 @@ class SimpleDataset:
         mt_config=None,
         tenants=None,
         properties=None,
+        inverted_index_config=None,
     ):
         self.collection_name = collection_name or None
         self.vectorizer_config = (
@@ -121,6 +122,11 @@ class SimpleDataset:
         self.mt_config = mt_config or None
         self.tenants = tenants or []
         self.properties = properties or list()
+        self.inverted_index_config or Configure.inverted_index(
+            index_timestamps=True,
+            index_null_state=True,
+            index_property_length=True,
+        )
 
         self._basedir = basedir
 
@@ -134,6 +140,7 @@ class SimpleDataset:
             generative_config=self.generative_config,
             properties=self.properties,
             multi_tenancy_config=self.mt_config,
+            inverted_index_config=self.inverted_index_config,
         )
         if self.mt_config is not None:
             collection.tenants.create(self.tenants)
