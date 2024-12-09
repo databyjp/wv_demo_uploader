@@ -30,13 +30,7 @@ client = weaviate.connect_to_local(
 )
 ```
 
-To use a `weaviate.Client` object, as used in the Weaviate Python client `v3.x`, import the dataset class from `weaviate_datasets.v3`.
-
-```python
-import weaviate_datasets.v3_datasets as wd_v3
-dataset = wd_v3.JeopardyQuestions1k()  # Instantiate dataset
-dataset.upload_dataset(client)  # Pass the Weaviate client instance
-```
+To use a `weaviate.Client` object, use 0.5.x or older version of this package.
 
 ### Built-in methods
 - `.upload_dataset(client)` - add defined classes to schema, adds objects
