@@ -122,7 +122,7 @@ class SimpleDataset:
         self.mt_config = mt_config or None
         self.tenants = tenants or []
         self.properties = properties or list()
-        self.inverted_index_config or Configure.inverted_index(
+        self.inverted_index_config = inverted_index_config or Configure.inverted_index(
             index_timestamps=True,
             index_null_state=True,
             index_property_length=True,
