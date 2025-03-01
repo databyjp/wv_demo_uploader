@@ -367,11 +367,16 @@ class JeopardyQuestions1k:
     def __init__(
         self, vectorizer_config=None, generative_config=None, reranker_config=None
     ):
-        self.vectorizer_config = (
-            vectorizer_config or Configure.Vectorizer.text2vec_openai()
-        )
-        self.generative_config = generative_config or Configure.Generative.openai()
-        self.reranker_config = reranker_config or Configure.Reranker.cohere()
+        if vectorizer_config is not None:
+            vectorizer_config = Configure.Vectorizer.text2vec_openai(
+                model="text-embedding-ada-002"
+            )
+
+        if generative_config is not None:
+            generative_config = Configure.Generative.openai()
+
+        if reranker_config is not None:
+            reranker_config = Configure.Reranker.cohere()
 
         self._basedir = basedir
 
@@ -487,11 +492,11 @@ class JeopardyQuestions1k:
         cat_emb_dict = dict(zip(cat_names, cat_arr))
         return cat_emb_dict
 
-    def upload_objects(self, client: WeaviateClient) -> bool:
+    def upload_objects(self, client: WeaviateClient, batch_size: int) -> bool:
         """
         Base uploader method for uploading a single class.
         """
-        with client.batch.fixed_size() as batch:
+        with client.batch.fixed_size(batch_size=batch_size) as batch:
             for (data_obj_from, vec_from), (data_obj_to, vec_to) in tqdm(
                 self._class_pair_dataloader()
             ):
@@ -530,7 +535,7 @@ class JeopardyQuestions1k:
         return True
 
     def upload_dataset(
-        self, client: WeaviateClient, overwrite=False, compress=False
+        self, client: WeaviateClient, overwrite=False, compress=False, batch_size=200
     ) -> bool:
         """
         Adds the class to the schema,
@@ -553,7 +558,7 @@ class JeopardyQuestions1k:
             self.vectorindex_config = Configure.VectorIndex.hnsw()
 
         _ = self.add_collections(client)
-        _ = self.upload_objects(client)
+        _ = self.upload_objects(client, batch_size=batch_size)
         return True
 
     def get_sample(self) -> Tuple[Dict, Dict]:
