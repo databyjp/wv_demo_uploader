@@ -385,7 +385,6 @@ class JeopardyQuestions1k:
         else:
             self._use_existing_vecs = True
 
-
     def add_collections(self, client: WeaviateClient) -> Tuple[Collection, Collection]:
         """
         For each class in the dataset, add its definition to the Weaviate instance.
@@ -557,12 +556,13 @@ class JeopardyQuestions10k(JeopardyQuestions1k):
     def __init__(
         self, vectorizer_config=None, generative_config=None, reranker_config=None
     ):
-        super().__init__( vectorizer_config, generative_config, reranker_config)
+        super().__init__(vectorizer_config, generative_config, reranker_config)
         self.data_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json")
         self.arr_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json.npy")
         self.category_vec_fpath = os.path.join(
             self._basedir, "data", "jeopardy_10k_categories.csv"
         )
+
 
 class NewsArticles(SimpleDataset):
     _embeddings_files = {
@@ -580,14 +580,15 @@ class NewsArticles(SimpleDataset):
     ):
         super().__init__(
             collection_name=collection_name,
-            vectorizer_config=vectorizer_config or Configure.Vectorizer.text2vec_openai(),
+            vectorizer_config=vectorizer_config
+            or Configure.Vectorizer.text2vec_openai(),
             generative_config=generative_config or Configure.Generative.openai(),
         )
-        
+
         self._datadir = os.path.join(self._basedir, "data/newsarticles")
         self._dataset_size = None
         self._dataset_path = os.path.join(self._basedir, "data/newsarticles.zip")
-        
+
         # Download the dataset if not done so already
         if not os.path.exists(self._dataset_path):
             print("Downloading data... please wait")
@@ -602,13 +603,13 @@ class NewsArticles(SimpleDataset):
             zipfile = self._dataset_path
             with ZipFile(zipfile, "r") as zip_ref:
                 zip_ref.extractall(os.path.join(self._basedir, "data"))
-    
+
     def add_collections(self, client: WeaviateClient) -> dict:
         """
         Add all collections (Publication, Author, Article, Category) to the schema
         """
         collections = {}
-        
+
         # First, create the collections with no cross-references
         # Category collection (no references needed)
         collections["Category"] = client.collections.create(
@@ -625,7 +626,7 @@ class NewsArticles(SimpleDataset):
                 ),
             ],
         )
-        
+
         # Article collection (no references initially)
         collections["Article"] = client.collections.create(
             name="Article",
@@ -673,8 +674,8 @@ class NewsArticles(SimpleDataset):
                 ),
             ],
         )
-        
-        # Author collection 
+
+        # Author collection
         collections["Author"] = client.collections.create(
             name="Author",
             description="An author",
@@ -689,7 +690,7 @@ class NewsArticles(SimpleDataset):
                 ),
             ],
         )
-        
+
         # Publication collection
         collections["Publication"] = client.collections.create(
             name="Publication",
@@ -710,9 +711,9 @@ class NewsArticles(SimpleDataset):
                 ),
             ],
         )
-        
+
         # Now add reference properties
-        
+
         # Add references to Article
         article_collection = client.collections.get("Article")
         article_collection.config.add_reference(
@@ -736,7 +737,7 @@ class NewsArticles(SimpleDataset):
                 description="Category that the article belongs to",
             )
         )
-        
+
         # Add references to Author
         author_collection = client.collections.get("Author")
         author_collection.config.add_reference(
@@ -753,7 +754,7 @@ class NewsArticles(SimpleDataset):
                 description="A publication this author has written for",
             )
         )
-        
+
         # Add references to Publication
         publication_collection = client.collections.get("Publication")
         publication_collection.config.add_reference(
@@ -763,39 +764,35 @@ class NewsArticles(SimpleDataset):
                 description="The articles this publication has",
             )
         )
-        
+
         return collections
-    
+
     def _get_sub_filelist(self, filedir):
         return [f for f in os.listdir(filedir) if f.endswith(".json")]
-    
-    def _load_publication_and_category(self, client: WeaviateClient, batch_size: int = 100):
+
+    def _load_publication_and_category(
+        self, client: WeaviateClient, batch_size: int = 100
+    ):
         for ctype in ["categories", "publications"]:
             datafiles = self._get_sub_filelist(os.path.join(self._datadir, ctype))
             embeddings_file = self._embeddings_files[ctype]
-            
+
             with open(os.path.join(self._basedir, embeddings_file), "r") as f:
                 embeddings = json.load(f)
-            
+
             collection_name = "Category" if ctype == "categories" else "Publication"
             collection = client.collections.get(collection_name)
-            
+
             with collection.batch.fixed_size(batch_size=batch_size) as batch:
                 for dfile in datafiles:
                     with open(os.path.join(self._datadir, ctype, dfile), "r") as f:
                         data = json.load(f)
-                    if ctype == "publications" and "headquartersGeoLocation" in data["schema"]:
-                        # For debugging
-                        print(f"Original geo data: {data['schema']['headquartersGeoLocation']}")
-                        
-                        # Just remove the geo property for now to test if other things work
-                        del data["schema"]["headquartersGeoLocation"]
                     batch.add_object(
                         properties=data["schema"],
                         uuid=data["id"],
                         vector=embeddings[data["id"]],
                     )
-    
+
     def _clean_up_newsdata(self, class_name: str, value: str) -> str:
         """
         Clean up the data.
@@ -806,70 +803,73 @@ class NewsArticles(SimpleDataset):
         elif class_name == "Summary":
             value = value.replace("\n", " ")
         return value
-    
+
     def _generate_uuid(self, key: str) -> str:
         """
         Generates a universally unique identifier (uuid).
         """
         return str(uuid.uuid3(uuid.NAMESPACE_DNS, key))
-    
+
     def _load_authors_article(self, client: WeaviateClient, batch_size: int = 50):
         datafiles = self._get_sub_filelist(os.path.join(self._datadir))
         embedding_dict = {}
-        
+
         # Load embeddings for articles and authors
         for ctype in ["articles", "authors"]:
             embeddings_file = self._embeddings_files[ctype]
             with open(os.path.join(self._basedir, embeddings_file), "r") as f:
                 embedding_dict[ctype] = json.load(f)
-        
+
         # Get collections
         article_collection = client.collections.get("Article")
         author_collection = client.collections.get("Author")
         publication_collection = client.collections.get("Publication")
-        
-        with article_collection.batch.fixed_size(batch_size=batch_size) as article_batch, \
-             author_collection.batch.fixed_size(batch_size=batch_size) as author_batch:
-            
+
+        with article_collection.batch.fixed_size(
+            batch_size=batch_size
+        ) as article_batch, author_collection.batch.fixed_size(
+            batch_size=batch_size
+        ) as author_batch:
+
             for datafile in datafiles:
                 try:
                     with open(os.path.join(self._datadir, datafile), "r") as f:
                         data = json.load(f)
-                    
+
                     article_id = self._generate_uuid(data["url"])
-                    
+
                     # ADD AUTHORS
                     author_ids = []
                     for author in data["authors"]:
                         if len(author.split(" ")) == 2:
                             author = self._clean_up_newsdata("Author", author)
                             author_id = self._generate_uuid(author)
-                            
+
                             if author_id in embedding_dict["authors"]:
                                 author_batch.add_object(
                                     properties={"name": author},
                                     uuid=author_id,
                                     vector=embedding_dict["authors"][author_id],
                                 )
-                                
+
                                 author_ids.append(author_id)
-                                
+
                                 # Add references
                                 author_batch.add_reference(
                                     from_uuid=author_id,
                                     from_property="writesFor",
-                                    to=data["publicationId"]
+                                    to=data["publicationId"],
                                 )
-                                
+
                                 author_batch.add_reference(
                                     from_uuid=author_id,
                                     from_property="wroteArticles",
-                                    to=article_id
+                                    to=article_id,
                                 )
                         else:
                             author_id = data["publicationId"]
                             author_ids.append(data["publicationId"])
-                    
+
                     # ADD ARTICLES
                     word_count = len(" ".join(data["paragraphs"]).split(" "))
                     article_object = {
@@ -878,63 +878,67 @@ class NewsArticles(SimpleDataset):
                         "wordCount": word_count,
                         "url": data["url"],
                     }
-                    
+
                     # Set publication date
                     if data["pubDate"] is not None and data["pubDate"] != "":
                         article_object["publicationDate"] = data["pubDate"]
-                    
+
                     # Add article to weaviate
                     article_batch.add_object(
                         properties=article_object,
                         uuid=article_id,
                         vector=embedding_dict["articles"][article_id],
                     )
-                    
+
                     # Add references
                     article_batch.add_reference(
                         from_uuid=article_id,
                         from_property="inPublication",
-                        to=data["publicationId"]
+                        to=data["publicationId"],
                     )
-                    
+
                     # Add references for authors
                     for author_id in author_ids:
                         article_batch.add_reference(
                             from_uuid=article_id,
                             from_property="hasAuthors",
-                            to=author_id
+                            to=author_id,
                         )
-                    
+
                     # Add category reference if it exists
                     if "categoryId" in data and data["categoryId"]:
                         article_batch.add_reference(
                             from_uuid=article_id,
                             from_property="ofCategory",
-                            to=data["categoryId"]
+                            to=data["categoryId"],
                         )
-                    
+
                 except Exception as e:
                     logging.warning(f"Error while loading {datafile}: {e}")
-        
+
         # Handle publication hasArticles references in a separate batch
-        publication_batch_size = min(batch_size, 50)  # Smaller batch size for cross-references
-        with publication_collection.batch.fixed_size(batch_size=publication_batch_size) as pub_batch:
+        publication_batch_size = min(
+            batch_size, 50
+        )  # Smaller batch size for cross-references
+        with publication_collection.batch.fixed_size(
+            batch_size=publication_batch_size
+        ) as pub_batch:
             for datafile in datafiles:
                 try:
                     with open(os.path.join(self._datadir, datafile), "r") as f:
                         data = json.load(f)
-                    
+
                     article_id = self._generate_uuid(data["url"])
                     publication_id = data["publicationId"]
-                    
+
                     pub_batch.add_reference(
                         from_uuid=publication_id,
                         from_property="hasArticles",
-                        to=article_id
+                        to=article_id,
                     )
                 except Exception as e:
                     logging.warning(f"Error adding publication reference: {e}")
-    
+
     def upload_dataset(
         self, client: WeaviateClient, batch_size=100, overwrite=False, compress=False
     ) -> bool:
@@ -948,7 +952,7 @@ class NewsArticles(SimpleDataset):
                     client.collections.delete(collection_name)
                 except:
                     pass  # Collection might not exist
-        
+
         # Configure vector index based on compression setting
         if compress:
             self.vectorindex_config = Configure.VectorIndex.hnsw(
@@ -956,16 +960,16 @@ class NewsArticles(SimpleDataset):
             )
         else:
             self.vectorindex_config = Configure.VectorIndex.hnsw()
-        
+
         # Add collections to the schema
         _ = self.add_collections(client)
-        
+
         # Load data
         self._load_publication_and_category(client, batch_size)
         self._load_authors_article(client, batch_size)
-        
+
         return True
-    
+
     def get_sample(self) -> dict:
         """
         Return a sample Article object.
@@ -975,7 +979,7 @@ class NewsArticles(SimpleDataset):
             try:
                 with open(os.path.join(self._datadir, datafile), "r") as f:
                     data = json.load(f)
-                
+
                 word_count = len(" ".join(data["paragraphs"]).split(" "))
                 article_object = {
                     "title": data["title"],
@@ -983,12 +987,12 @@ class NewsArticles(SimpleDataset):
                     "wordCount": word_count,
                     "url": data["url"],
                 }
-                
+
                 if data["pubDate"] is not None and data["pubDate"] != "":
                     article_object["publicationDate"] = data["pubDate"]
-                
+
                 return article_object
             except:
                 continue
-        
+
         return {"title": "Sample Article", "summary": "No actual data found"}
