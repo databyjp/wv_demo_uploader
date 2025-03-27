@@ -367,15 +367,19 @@ class JeopardyQuestions1k:
     def __init__(
         self, vectorizer_config=None, generative_config=None, reranker_config=None
     ):
-        if vectorizer_config is not None:
+
+        if vectorizer_config is None:
             vectorizer_config = Configure.Vectorizer.text2vec_openai(
                 model="text-embedding-ada-002"
             )
+            self._use_existing_vecs = True
+        else:
+            self._use_existing_vecs = False
 
-        if generative_config is not None:
+        if generative_config is None:
             generative_config = Configure.Generative.openai()
 
-        if reranker_config is not None:
+        if reranker_config is None:
             reranker_config = Configure.Reranker.cohere()
 
         self._basedir = basedir
@@ -389,12 +393,6 @@ class JeopardyQuestions1k:
         self._question_collection = "JeopardyQuestion"
         self._category_collection = "JeopardyCategory"
         self._xref_prop_name = "hasCategory"
-
-        if vectorizer_config is not None:
-            self._use_existing_vecs = False
-        else:
-            self._use_existing_vecs = True
-
 
     def add_collections(self, client: WeaviateClient) -> Tuple[Collection, Collection]:
         """
@@ -571,12 +569,13 @@ class JeopardyQuestions10k(JeopardyQuestions1k):
     def __init__(
         self, vectorizer_config=None, generative_config=None, reranker_config=None
     ):
-        super().__init__( vectorizer_config, generative_config, reranker_config)
-        self.data_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json")
-        self.arr_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json.npy")
-        self.category_vec_fpath = os.path.join(
+        super().__init__(vectorizer_config, generative_config, reranker_config)
+        self._data_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json")
+        self._arr_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json.npy")
+        self._category_vec_fpath = os.path.join(
             self._basedir, "data", "jeopardy_10k_categories.csv"
         )
+
 
 # class NewsArticles(SimpleDataset):
 
