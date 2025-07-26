@@ -206,7 +206,7 @@ class SimpleDataset:
                 self._vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw()
 
         _ = self.add_collection(client)
-        upload_responses = self.upload_objects(client, batch_size=batch_size)
+        upload_responses = self.upload_objects(client, batch_size)
 
         return upload_responses
 
@@ -569,7 +569,7 @@ class JeopardyQuestions1k:
                 self._vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw()
 
         _ = self.add_collections(client)
-        _ = self.upload_objects(client, batch_size=batch_size)
+        _ = self.upload_objects(client, batch_size)
         return True
 
     def get_sample(self) -> Tuple[Dict, Dict]:
