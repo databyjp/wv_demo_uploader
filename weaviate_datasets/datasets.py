@@ -148,7 +148,7 @@ class SimpleDataset:
     def _class_dataloader(self) -> Generator:
         yield {}, None
 
-    def upload_objects(self, client: WeaviateClient, batch_size=200) -> List:
+    def upload_objects(self, client: WeaviateClient, batch_size: int = 200) -> List:
         """
         Base uploader method for uploading a single class.
         """
@@ -495,7 +495,7 @@ class JeopardyQuestions1k:
         cat_emb_dict = dict(zip(cat_names, cat_arr))
         return cat_emb_dict
 
-    def upload_objects(self, client: WeaviateClient, batch_size: int) -> bool:
+    def upload_objects(self, client: WeaviateClient, batch_size: int = 200) -> bool:
         """
         Base uploader method for uploading a single class.
         """
