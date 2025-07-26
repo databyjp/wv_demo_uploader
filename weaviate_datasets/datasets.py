@@ -107,7 +107,7 @@ class SimpleDataset:
     def __init__(
         self,
         collection_name=None,
-        vectorizer_config=None,
+        vector_config=None,
         generative_config=None,
         mt_config=None,
         tenants=None,
@@ -115,9 +115,7 @@ class SimpleDataset:
         inverted_index_config=None,
     ):
         self.collection_name = collection_name or None
-        self._vectorizer_config = (
-            vectorizer_config or Configure.Vectorizer.text2vec_openai()
-        )
+        self._vector_config = vector_config or Configure.Vectors.text2vec_openai()
         self._generative_config = generative_config or Configure.Generative.openai()
         self.mt_config = mt_config or None
         self.tenants = tenants or []
@@ -136,7 +134,7 @@ class SimpleDataset:
         """
         collection = client.collections.create(
             name=self.collection_name,
-            vectorizer_config=self._vectorizer_config,
+            vector_config=self._vector_config,
             generative_config=self._generative_config,
             properties=self.properties,
             multi_tenancy_config=self.mt_config,
@@ -188,12 +186,24 @@ class SimpleDataset:
         if overwrite:
             client.collections.delete(self.collection_name)
 
-        if compress:
-            self._vectorindex_config = Configure.VectorIndex.hnsw(
-                quantizer=Configure.VectorIndex.Quantizer.bq()
-            )
+        # Configure vector index based on compression setting
+        from weaviate.collections.classes.config import _VectorConfigCreate
+        if not isinstance(self._vector_config, _VectorConfigCreate):
+            # vector_config is a list
+            if compress:
+                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw(
+                    quantizer=Configure.VectorIndex.Quantizer.bq()
+                )
+            else:
+                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw()
         else:
-            self._vectorindex_config = Configure.VectorIndex.hnsw()
+            # vector_config is a single object
+            if compress:
+                self._vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw(
+                    quantizer=Configure.VectorIndex.Quantizer.bq()
+                )
+            else:
+                self._vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw()
 
         _ = self.add_collection(client)
         upload_responses = self.upload_objects(client, batch_size=batch_size)
@@ -211,13 +221,12 @@ class WineReviews(SimpleDataset):
     def __init__(
         self,
         collection_name="WineReview",
-        vectorizer_config=None,
+        vector_config=None,
         generative_config=None,
     ):
         super().__init__(
             collection_name=collection_name,
-            vectorizer_config=vectorizer_config
-            or Configure.Vectorizer.text2vec_openai(),
+            vector_config=vector_config or Configure.Vectors.text2vec_openai(),
             generative_config=generative_config or Configure.Generative.openai(),
             properties=[
                 Property(
@@ -274,14 +283,14 @@ class WineReviewsNV(WineReviews):
     def __init__(self):
         super().__init__()
         self.collection_name = "WineReviewNV"
-        self._vectorizer_config = [
-            Configure.NamedVectors.text2vec_openai(
+        self.vector_config = [
+            Configure.Vectors.text2vec_openai(
                 name="title", source_properties=["title"]
             ),
-            Configure.NamedVectors.text2vec_openai(
+            Configure.Vectors.text2vec_openai(
                 name="review_body", source_properties=["review_body"]
             ),
-            Configure.NamedVectors.text2vec_openai(
+            Configure.Vectors.text2vec_openai(
                 name="title_country", source_properties=["title", "country"]
             ),
         ]
@@ -291,13 +300,12 @@ class Wiki100(SimpleDataset):
     def __init__(
         self,
         collection_name="WikiChunk",
-        vectorizer_config=None,
+        vector_config=None,
         generative_config=None,
     ):
         super().__init__(
             collection_name=collection_name,
-            vectorizer_config=vectorizer_config
-            or Configure.Vectorizer.text2vec_openai(),
+            vector_config=vector_config or Configure.Vectors.text2vec_openai(),
             generative_config=generative_config or Configure.Generative.openai(),
             properties=[
                 Property(
@@ -360,14 +368,12 @@ class Wiki100(SimpleDataset):
 
 class JeopardyQuestions1k:
     def __init__(
-        self, vectorizer_config=None, generative_config=None, reranker_config=None
+        self, vector_config=None, generative_config=None, reranker_config=None
     ):
 
-        if vectorizer_config is None:
-            vectorizer_config = Configure.Vectorizer.text2vec_openai(
-                model="ada",
-                model_version="002",
-                type_="text"
+        if vector_config is None:
+            vector_config = Configure.Vectors.text2vec_openai(
+                model="ada", model_version="002", type_="text"
             )
             self._use_existing_vecs = True
         else:
@@ -391,7 +397,7 @@ class JeopardyQuestions1k:
         self._category_collection = "JeopardyCategory"
         self._xref_prop_name = "hasCategory"
 
-        self._vectorizer_config = vectorizer_config
+        self._vector_config = vector_config
         self._generative_config = generative_config
         self._reranker_config = reranker_config
 
@@ -401,8 +407,7 @@ class JeopardyQuestions1k:
         """
         categories = client.collections.create(
             name=self._category_collection,
-            vectorizer_config=self._vectorizer_config,
-            vector_index_config=self._vectorindex_config,
+            vector_config=self._vector_config,
             generative_config=self._generative_config,
             reranker_config=self._reranker_config,
             properties=[
@@ -416,8 +421,7 @@ class JeopardyQuestions1k:
 
         questions = client.collections.create(
             name=self._question_collection,
-            vectorizer_config=self._vectorizer_config,
-            vector_index_config=self._vectorindex_config,
+            vector_config=self._vector_config,
             generative_config=self._generative_config,
             reranker_config=self._reranker_config,
             inverted_index_config=Configure.inverted_index(
@@ -545,12 +549,24 @@ class JeopardyQuestions1k:
             client.collections.delete(self._question_collection)
             client.collections.delete(self._category_collection)
 
-        if compress:
-            self._vectorindex_config = Configure.VectorIndex.hnsw(
-                quantizer=Configure.VectorIndex.Quantizer.bq()
-            )
+        # Configure vector index based on compression setting
+        from weaviate.collections.classes.config import _VectorConfigCreate
+        if not isinstance(self._vector_config, _VectorConfigCreate):
+            # vector_config is a list
+            if compress:
+                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw(
+                    quantizer=Configure.VectorIndex.Quantizer.bq()
+                )
+            else:
+                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw()
         else:
-            self._vectorindex_config = Configure.VectorIndex.hnsw()
+            # vector_config is a single object
+            if compress:
+                self._vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw(
+                    quantizer=Configure.VectorIndex.Quantizer.bq()
+                )
+            else:
+                self._vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw()
 
         _ = self.add_collections(client)
         _ = self.upload_objects(client, batch_size=batch_size)
@@ -564,14 +580,15 @@ class JeopardyQuestions1k:
 
 class JeopardyQuestions10k(JeopardyQuestions1k):
     def __init__(
-        self, vectorizer_config=None, generative_config=None, reranker_config=None
+        self, vector_config=None, generative_config=None, reranker_config=None
     ):
-        super().__init__(vectorizer_config, generative_config, reranker_config)
+        super().__init__(vector_config, generative_config, reranker_config)
         self._data_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json")
         self._arr_fpath = os.path.join(self._basedir, "data", "jeopardy_10k.json.npy")
         self._category_vec_fpath = os.path.join(
             self._basedir, "data", "jeopardy_10k_categories.csv"
         )
+
 
 class NewsArticles(SimpleDataset):
     _embeddings_files = {
@@ -584,13 +601,12 @@ class NewsArticles(SimpleDataset):
     def __init__(
         self,
         collection_name=None,  # Not used but kept for consistency with parent class
-        vectorizer_config=None,
+        vector_config=None,
         generative_config=None,
     ):
         super().__init__(
             collection_name=collection_name,
-            vectorizer_config=vectorizer_config
-            or Configure.Vectorizer.text2vec_openai(),
+            vector_config=vector_config or Configure.Vectors.text2vec_openai(),
             generative_config=generative_config or Configure.Generative.openai(),
         )
 
@@ -624,8 +640,8 @@ class NewsArticles(SimpleDataset):
         collections["Category"] = client.collections.create(
             name="Category",
             description="Category an article belongs to",
-            vectorizer_config=self.vectorizer_config,
-            generative_config=self.generative_config,
+            vector_config=self.vector_config,
+            generative_config=self._generative_config,  # Fixed: use _generative_config
             properties=[
                 Property(
                     name="name",
@@ -640,8 +656,8 @@ class NewsArticles(SimpleDataset):
         collections["Article"] = client.collections.create(
             name="Article",
             description="A news article",
-            vectorizer_config=self.vectorizer_config,
-            generative_config=self.generative_config,
+            vector_config=self.vector_config,
+            generative_config=self._generative_config,
             inverted_index_config=Configure.inverted_index(
                 index_timestamps=True,
                 index_null_state=True,
@@ -688,8 +704,8 @@ class NewsArticles(SimpleDataset):
         collections["Author"] = client.collections.create(
             name="Author",
             description="An author",
-            vectorizer_config=self.vectorizer_config,
-            generative_config=self.generative_config,
+            vector_config=self.vector_config,
+            generative_config=self._generative_config,  # Fixed: use _generative_config
             properties=[
                 Property(
                     name="name",
@@ -704,8 +720,8 @@ class NewsArticles(SimpleDataset):
         collections["Publication"] = client.collections.create(
             name="Publication",
             description="A publication with an online source",
-            vectorizer_config=self.vectorizer_config,
-            generative_config=self.generative_config,
+            vector_config=self.vector_config,
+            generative_config=self._generative_config,  # Fixed: use _generative_config
             properties=[
                 Property(
                     name="name",
@@ -963,12 +979,23 @@ class NewsArticles(SimpleDataset):
                     pass  # Collection might not exist
 
         # Configure vector index based on compression setting
-        if compress:
-            self.vectorindex_config = Configure.VectorIndex.hnsw(
-                quantizer=Configure.VectorIndex.Quantizer.bq()
-            )
+        from weaviate.collections.classes.config import _VectorConfigCreate
+        if not isinstance(self.vector_config, _VectorConfigCreate):
+            # vector_config is a list
+            if compress:
+                self.vector_config[0].vector_index_config = Configure.VectorIndex.hnsw(
+                    quantizer=Configure.VectorIndex.Quantizer.bq()
+                )
+            else:
+                self.vector_config[0].vector_index_config = Configure.VectorIndex.hnsw()
         else:
-            self.vectorindex_config = Configure.VectorIndex.hnsw()
+            # vector_config is a single object
+            if compress:
+                self.vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw(
+                    quantizer=Configure.VectorIndex.Quantizer.bq()
+                )
+            else:
+                self.vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw()
 
         # Add collections to the schema
         _ = self.add_collections(client)
