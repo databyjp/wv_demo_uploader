@@ -5,5 +5,5 @@ from .datasets import (
     JeopardyQuestions1k,
     JeopardyQuestions10k,
     Wiki100,
-    # NewsArticles
+    NewsArticles,
 )
