@@ -64,6 +64,7 @@ To use a `weaviate.Client` object, use 0.5.x or older version of this package.
   - `JeopardyQuestion` and `JeopardyCategory` collections
 - JeopardyQuestions10k (10,000 Jeopardy questions & answers, vectorized with OpenAI `text-embedding-ada-002`)
   - `JeopardyQuestion` and `JeopardyCategory` collections
+- NewsArticles (News articles, including their corresponding publications, authors & categories, vectorized with OpenAI `text-embedding-ada-002`)
 
 ## Available classes - V3 collection
 
