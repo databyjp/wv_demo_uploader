@@ -980,22 +980,22 @@ class NewsArticles(SimpleDataset):
 
         # Configure vector index based on compression setting
         from weaviate.collections.classes.config import _VectorConfigCreate
-        if not isinstance(self.vector_config, _VectorConfigCreate):
+        if not isinstance(self._vector_config, _VectorConfigCreate):
             # vector_config is a list
             if compress:
-                self.vector_config[0].vector_index_config = Configure.VectorIndex.hnsw(
+                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw(
                     quantizer=Configure.VectorIndex.Quantizer.bq()
                 )
             else:
-                self.vector_config[0].vector_index_config = Configure.VectorIndex.hnsw()
+                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw()
         else:
             # vector_config is a single object
             if compress:
-                self.vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw(
+                self._vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw(
                     quantizer=Configure.VectorIndex.Quantizer.bq()
                 )
             else:
-                self.vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw()
+                self._vector_config.vectorIndexConfig = Configure.VectorIndex.hnsw()
 
         # Add collections to the schema
         _ = self.add_collections(client)
