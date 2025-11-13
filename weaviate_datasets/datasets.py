@@ -485,8 +485,8 @@ class JeopardyQuestions1k:
                     category_obj = {"title": row["Category"]}
                     category_vec = list(category_vec_dict[category_obj["title"]])
                     yield (question_obj, question_vec), (category_obj, category_vec)
-                except:
-                    logging.warning(f"Data parsing error on row {i}")
+                except Exception as e:
+                    logging.warning(f"Data parsing error on row {i}: {e}")
 
     def _get_cat_array(self) -> dict:
         cat_df = pd.read_csv(self._category_vec_fpath)
@@ -574,8 +574,11 @@ class JeopardyQuestions1k:
 
     def get_sample(self) -> Tuple[Dict, Dict]:
         dl = self._class_pair_dataloader()
-        (question_obj, _), (category_obj, _) = next(dl)
-        return question_obj, category_obj
+        try:
+            (question_obj, _), (category_obj, _) = next(dl)
+            return question_obj, category_obj
+        finally:
+            dl.close()
 
 
 class JeopardyQuestions10k(JeopardyQuestions1k):
