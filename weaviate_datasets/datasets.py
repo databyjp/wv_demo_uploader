@@ -115,7 +115,7 @@ class SimpleDataset:
         inverted_index_config=None,
     ):
         self.collection_name = collection_name or None
-        self._vector_config = vector_config or Configure.Vectors.text2vec_openai()
+        self._vector_config = vector_config or [Configure.Vectors.text2vec_openai()]
         self._generative_config = generative_config or Configure.Generative.openai()
         self.mt_config = mt_config or None
         self.tenants = tenants or []
@@ -191,11 +191,11 @@ class SimpleDataset:
         if not isinstance(self._vector_config, _VectorConfigCreate):
             # vector_config is a list
             if compress:
-                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw(
+                self._vector_config[0].vectorIndexConfig = Configure.VectorIndex.hnsw(
                     quantizer=Configure.VectorIndex.Quantizer.bq()
                 )
             else:
-                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw()
+                self._vector_config[0].vectorIndexConfig = Configure.VectorIndex.hnsw()
         else:
             # vector_config is a single object
             if compress:
@@ -283,7 +283,7 @@ class WineReviewsNV(WineReviews):
     def __init__(self):
         super().__init__()
         self.collection_name = "WineReviewNV"
-        self.vector_config = [
+        self._vector_config = [
             Configure.Vectors.text2vec_openai(
                 name="title", source_properties=["title"]
             ),
@@ -554,11 +554,11 @@ class JeopardyQuestions1k:
         if not isinstance(self._vector_config, _VectorConfigCreate):
             # vector_config is a list
             if compress:
-                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw(
+                self._vector_config[0].vectorIndexConfig = Configure.VectorIndex.hnsw(
                     quantizer=Configure.VectorIndex.Quantizer.bq()
                 )
             else:
-                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw()
+                self._vector_config[0].vectorIndexConfig = Configure.VectorIndex.hnsw()
         else:
             # vector_config is a single object
             if compress:
@@ -643,7 +643,7 @@ class NewsArticles(SimpleDataset):
         collections["Category"] = client.collections.create(
             name="Category",
             description="Category an article belongs to",
-            vector_config=self.vector_config,
+            vector_config=self._vector_config,
             generative_config=self._generative_config,  # Fixed: use _generative_config
             properties=[
                 Property(
@@ -659,7 +659,7 @@ class NewsArticles(SimpleDataset):
         collections["Article"] = client.collections.create(
             name="Article",
             description="A news article",
-            vector_config=self.vector_config,
+            vector_config=self._vector_config,
             generative_config=self._generative_config,
             inverted_index_config=Configure.inverted_index(
                 index_timestamps=True,
@@ -707,7 +707,7 @@ class NewsArticles(SimpleDataset):
         collections["Author"] = client.collections.create(
             name="Author",
             description="An author",
-            vector_config=self.vector_config,
+            vector_config=self._vector_config,
             generative_config=self._generative_config,  # Fixed: use _generative_config
             properties=[
                 Property(
@@ -723,7 +723,7 @@ class NewsArticles(SimpleDataset):
         collections["Publication"] = client.collections.create(
             name="Publication",
             description="A publication with an online source",
-            vector_config=self.vector_config,
+            vector_config=self._vector_config,
             generative_config=self._generative_config,  # Fixed: use _generative_config
             properties=[
                 Property(
@@ -986,11 +986,11 @@ class NewsArticles(SimpleDataset):
         if not isinstance(self._vector_config, _VectorConfigCreate):
             # vector_config is a list
             if compress:
-                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw(
+                self._vector_config[0].vectorIndexConfig = Configure.VectorIndex.hnsw(
                     quantizer=Configure.VectorIndex.Quantizer.bq()
                 )
             else:
-                self._vector_config[0].vector_index_config = Configure.VectorIndex.hnsw()
+                self._vector_config[0].vectorIndexConfig = Configure.VectorIndex.hnsw()
         else:
             # vector_config is a single object
             if compress:

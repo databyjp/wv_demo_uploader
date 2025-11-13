@@ -19,12 +19,23 @@ twine upload dist/*
 
 ### Testing
 ```bash
-# Run tests
-pytest
+# Run unit tests (no Weaviate instance required)
+pytest tests/test_dataset_config.py -v
+
+# Run integration tests (requires local Weaviate instance)
+pytest tests/test_integration.py -v  # Requires local Weaviate and OPENAI_APIKEY env var
+
+# Run all tests
+pytest -v
 
 # Test imports manually
 python tests/test_imports.py  # Requires local Weaviate instance and OPENAI_APIKEY env var
 ```
+
+**Test Structure:**
+- `test_dataset_config.py`: Unit tests for dataset configuration (45 tests, no Weaviate required)
+- `test_integration.py`: Integration tests that upload/retrieve data (requires Weaviate instance)
+- `test_imports.py`: Manual test script for quick validation
 
 ### Development Setup
 ```bash

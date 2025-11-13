@@ -8,6 +8,7 @@ a live Weaviate instance.
 import pytest
 import weaviate_datasets as wd
 from weaviate.classes.config import Configure, DataType
+from typing import Dict, Any
 
 
 class TestWineReviews:
@@ -270,6 +271,234 @@ class TestDatasetUploadParameters:
         dataset = wd.Wiki100()
         assert hasattr(dataset, "upload_dataset")
         assert callable(dataset.upload_dataset)
+
+
+class TestDatasetImportAndShape:
+    """Parametric tests to verify all datasets can be imported and yield correct data shapes."""
+
+    @pytest.mark.parametrize(
+        "dataset_class,expected_fields,is_multi_collection",
+        [
+            # Single collection datasets
+            (
+                wd.WineReviews,
+                ["review_body", "title", "country", "points", "price"],
+                False,
+            ),
+            (
+                wd.WineReviewsMT,
+                ["review_body", "title", "country", "points", "price"],
+                False,
+            ),
+            (
+                wd.WineReviewsNV,
+                ["review_body", "title", "country", "points", "price"],
+                False,
+            ),
+            (
+                wd.Wiki100,
+                ["title", "chunk", "chunk_number"],
+                False,
+            ),
+            # Multi-collection datasets
+            (
+                wd.JeopardyQuestions1k,
+                {
+                    "question": ["question", "answer", "points", "round", "air_date"],
+                    "category": ["title"],
+                },
+                True,
+            ),
+            (
+                wd.JeopardyQuestions10k,
+                {
+                    "question": ["question", "answer", "points", "round", "air_date"],
+                    "category": ["title"],
+                },
+                True,
+            ),
+        ],
+    )
+    def test_dataset_import_and_shape(
+        self,
+        dataset_class,
+        expected_fields: Any,
+        is_multi_collection: bool,
+    ):
+        """Test that dataset can be imported and yields objects with correct shape."""
+        # Import and instantiate the dataset
+        dataset = dataset_class()
+        assert dataset is not None
+
+        if is_multi_collection:
+            # For multi-collection datasets, check both question and category objects
+            assert isinstance(expected_fields, dict)
+
+            dataloader = dataset._class_pair_dataloader()
+            try:
+                (question_obj, question_vec), (category_obj, category_vec) = next(
+                    dataloader
+                )
+
+                # Verify question object shape
+                for field in expected_fields["question"]:
+                    assert (
+                        field in question_obj
+                    ), f"Field '{field}' missing from question object"
+                    assert (
+                        question_obj[field] is not None
+                    ), f"Field '{field}' is None"
+
+                # Verify category object shape
+                for field in expected_fields["category"]:
+                    assert (
+                        field in category_obj
+                    ), f"Field '{field}' missing from category object"
+                    assert (
+                        category_obj[field] is not None
+                    ), f"Field '{field}' is None"
+
+                # Verify vectors exist for datasets with pre-computed embeddings
+                if dataset._use_existing_vecs:
+                    assert question_vec is not None
+                    assert category_vec is not None
+                    assert isinstance(question_vec, list)
+                    assert isinstance(category_vec, list)
+                    assert len(question_vec) > 0
+                    assert len(category_vec) > 0
+            finally:
+                dataloader.close()
+
+        else:
+            # For single collection datasets, check the data object
+            assert isinstance(expected_fields, list)
+
+            dataloader = dataset._class_dataloader()
+            data_obj, vector = next(dataloader)
+
+            # Verify all expected fields are present
+            for field in expected_fields:
+                assert field in data_obj, f"Field '{field}' missing from data object"
+
+            # Vector should be None for datasets without pre-computed embeddings
+            assert vector is None
+
+    @pytest.mark.parametrize(
+        "dataset_class,num_objects_to_check",
+        [
+            (wd.WineReviews, 5),
+            (wd.WineReviewsMT, 5),
+            (wd.WineReviewsNV, 5),
+            (wd.Wiki100, 10),
+            (wd.JeopardyQuestions1k, 10),
+            (wd.JeopardyQuestions10k, 10),
+        ],
+    )
+    def test_dataset_yields_multiple_objects(
+        self, dataset_class, num_objects_to_check: int
+    ):
+        """Test that dataset can yield multiple objects without errors."""
+        dataset = dataset_class()
+
+        if hasattr(dataset, "_class_pair_dataloader"):
+            # Multi-collection dataset
+            dataloader = dataset._class_pair_dataloader()
+            try:
+                for i, ((question_obj, q_vec), (category_obj, c_vec)) in enumerate(
+                    dataloader
+                ):
+                    if i >= num_objects_to_check:
+                        break
+                    assert isinstance(question_obj, dict)
+                    assert isinstance(category_obj, dict)
+                    assert len(question_obj) > 0
+                    assert len(category_obj) > 0
+            finally:
+                dataloader.close()
+        else:
+            # Single collection dataset
+            dataloader = dataset._class_dataloader()
+            for i, (data_obj, vector) in enumerate(dataloader):
+                if i >= num_objects_to_check:
+                    break
+                assert isinstance(data_obj, dict)
+                assert len(data_obj) > 0
+
+    @pytest.mark.parametrize(
+        "dataset_class,expected_type_checks",
+        [
+            (
+                wd.WineReviews,
+                {
+                    "review_body": str,
+                    "title": str,
+                    "country": str,
+                    "points": int,
+                    # price can be float or NaN, so we skip type check
+                },
+            ),
+            (
+                wd.Wiki100,
+                {
+                    "title": str,
+                    "chunk": str,
+                    "chunk_number": int,
+                },
+            ),
+            (
+                wd.JeopardyQuestions1k,
+                {
+                    "question_obj": {
+                        "question": str,
+                        "answer": str,
+                        "points": int,
+                        "round": str,
+                        "air_date": str,
+                    },
+                    "category_obj": {
+                        "title": str,
+                    },
+                },
+            ),
+        ],
+    )
+    def test_dataset_field_types(self, dataset_class, expected_type_checks: Dict):
+        """Test that dataset fields have the correct Python types."""
+        dataset = dataset_class()
+
+        if "question_obj" in expected_type_checks:
+            # Multi-collection dataset (Jeopardy)
+            dataloader = dataset._class_pair_dataloader()
+            try:
+                (question_obj, _), (category_obj, _) = next(dataloader)
+
+                for field, expected_type in expected_type_checks[
+                    "question_obj"
+                ].items():
+                    assert isinstance(
+                        question_obj[field], expected_type
+                    ), f"Field '{field}' should be {expected_type}, got {type(question_obj[field])}"
+
+                for field, expected_type in expected_type_checks[
+                    "category_obj"
+                ].items():
+                    assert isinstance(
+                        category_obj[field], expected_type
+                    ), f"Field '{field}' should be {expected_type}, got {type(category_obj[field])}"
+            finally:
+                dataloader.close()
+        else:
+            # Single collection dataset
+            dataloader = dataset._class_dataloader()
+            data_obj, _ = next(dataloader)
+
+            for field, expected_type in expected_type_checks.items():
+                assert field in data_obj
+                # Handle potential NaN values for numeric fields
+                if data_obj[field] is not None:
+                    assert isinstance(
+                        data_obj[field], expected_type
+                    ), f"Field '{field}' should be {expected_type}, got {type(data_obj[field])}"
 
 
 if __name__ == "__main__":
